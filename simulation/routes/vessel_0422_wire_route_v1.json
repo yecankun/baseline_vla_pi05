@@ -1,0 +1,290 @@
+{
+  "entry": [
+    0.24974574148654938,
+    -2.4800381660461426,
+    0.3652297258377075
+  ],
+  "shared_waypoints": [],
+  "left_waypoints": [],
+  "right_waypoints": [],
+  "left_target": [
+    -0.7238585948944092,
+    4.276397228240967,
+    -0.2448345422744751
+  ],
+  "right_target": [
+    0.7756515145301819,
+    4.291247367858887,
+    -0.5382547974586487
+  ],
+  "_semantic_note": [
+    "This route is for the simulated guidewire/vessel centerline, not the lab Elite trajectory.",
+    "The points are only topological anchors: entry and branch targets.",
+    "MeshGuidewire3DEnv snaps them to the STL surface, plans a mesh geodesic, then estimates local tube centers."
+  ],
+  "_bounds": [
+    [
+      -0.8656300902366638,
+      -2.4895167350769043,
+      -0.8459919691085815
+    ],
+    [
+      0.9974817037582397,
+      4.533079624176025,
+      0.7799414992332458
+    ]
+  ],
+  "wire_visual_entry_progress": 0.0,
+  "wire_visual_via_points": [
+    {
+      "frame": "scene",
+      "point": [
+        -0.0030159628950059414,
+        -0.20438513159751892,
+        -0.0011639604344964027
+      ],
+      "progress": 18.48732277750969,
+      "surface_point": [
+        0.013792082667350769,
+        -0.19476476311683655,
+        0.010389243252575397
+      ],
+      "surface_frame": "scene"
+    },
+    {
+      "frame": "scene",
+      "point": [
+        -0.00868724100291729,
+        -0.18662215769290924,
+        -0.01484828069806099
+      ],
+      "progress": 23.36374008655548,
+      "surface_point": [
+        -0.006734156049787998,
+        -0.19947212934494019,
+        -0.02927684783935547
+      ],
+      "surface_frame": "scene"
+    },
+    {
+      "frame": "scene",
+      "point": [
+        -0.017812808975577354,
+        -0.14307117462158203,
+        -0.04102622717618942
+      ],
+      "progress": 35.19277103245258,
+      "surface_point": [
+        -0.013270415365695953,
+        -0.14692431688308716,
+        -0.056993626058101654
+      ],
+      "surface_frame": "scene"
+    },
+    {
+      "frame": "scene",
+      "point": [
+        -0.014327995479106903,
+        -0.0883810892701149,
+        -0.03181358054280281
+      ],
+      "progress": 49.0,
+      "surface_point": [
+        -0.009274340234696865,
+        -0.10260441154241562,
+        0.002198487054556608
+      ],
+      "surface_frame": "scene"
+    }
+  ],
+  "_wire_visual_via_note": "Visual-only guidewire tail route. wire_visual_piper_exit_point is the manually calibrated visual guidewire outlet; wire_visual_entry_point is the manually calibrated vessel entry center; rendering uses wire_visual_route_points as a fixed entry prefix; the final prefix point is the attach marker. wire_visual_dynamic_route_points optionally shape the post-attach visual segment directly.",
+  "wire_visual_piper_exit_point": {
+    "frame": "scene",
+    "point": [
+      -0.10142479836940765,
+      -0.11701418459415436,
+      -0.029857143759727478
+    ],
+    "source": "manual_outlet_adjuster"
+  },
+  "wire_visual_entry_point": {
+    "frame": "scene",
+    "point": [
+      -0.003296918235719204,
+      -0.1036553606390953,
+      0.004962434992194176
+    ],
+    "source": "manual_outlet_adjuster"
+  },
+  "wire_visual_route_points": [
+    {
+      "frame": "scene",
+      "point": [
+        0.013675603084266186,
+        -0.17459824681282043,
+        0.016964150592684746
+      ],
+      "progress": 0.0,
+      "source": "manual_outlet_adjuster"
+    },
+    {
+      "frame": "scene",
+      "point": [
+        -0.00283841066993773,
+        -0.1940695345401764,
+        0.009965035133063793
+      ],
+      "progress": 1.0,
+      "source": "manual_outlet_adjuster"
+    },
+    {
+      "frame": "scene",
+      "point": [
+        -0.013095419853925705,
+        -0.19380508363246918,
+        -0.025534525513648987
+      ],
+      "progress": 2.0,
+      "source": "manual_outlet_adjuster"
+    },
+    {
+      "frame": "scene",
+      "point": [
+        -0.017223898321390152,
+        -0.1696728616952896,
+        -0.04128430783748627
+      ],
+      "progress": 3.0,
+      "source": "manual_outlet_adjuster"
+    },
+    {
+      "frame": "scene",
+      "point": [
+        -0.021288156509399414,
+        -0.15060676634311676,
+        -0.04915919527411461
+      ],
+      "progress": 4.0,
+      "source": "manual_outlet_adjuster"
+    },
+    {
+      "frame": "scene",
+      "point": [
+        -0.01833629235625267,
+        -0.12230709940195084,
+        -0.04856536164879799
+      ],
+      "progress": 5.0,
+      "source": "manual_outlet_adjuster"
+    },
+    {
+      "frame": "scene",
+      "point": [
+        -0.01484435424208641,
+        -0.0889238640666008,
+        -0.041799724102020264
+      ],
+      "progress": 6.0,
+      "source": "manual_outlet_adjuster"
+    },
+    {
+      "frame": "scene",
+      "point": [
+        -0.005098382942378521,
+        -0.0652322843670845,
+        -0.03241690248250961
+      ],
+      "progress": 7.0,
+      "source": "manual_outlet_adjuster"
+    }
+  ],
+  "wire_visual_dynamic_route_points": [
+    {
+      "frame": "scene",
+      "point": [
+        -0.004225398413836956,
+        -0.05238649249076843,
+        -0.029725492000579834
+      ],
+      "progress": 0.0,
+      "source": "manual_outlet_adjuster"
+    },
+    {
+      "frame": "scene",
+      "point": [
+        -0.0027889057528227568,
+        -0.012963595800101757,
+        -0.026379786431789398
+      ],
+      "progress": 1.0,
+      "source": "manual_outlet_adjuster"
+    }
+  ],
+  "right_wire_visual_dynamic_route_points": [
+    {
+      "frame": "scene",
+      "point": [
+        -0.004225398413836956,
+        -0.05238649249076843,
+        -0.029725492000579834
+      ],
+      "progress": 0.0,
+      "source": "manual_outlet_adjuster"
+    },
+    {
+      "frame": "scene",
+      "point": [
+        -0.0027889057528227568,
+        -0.012963595800101757,
+        -0.026379786431789398
+      ],
+      "progress": 1.0,
+      "source": "manual_outlet_adjuster"
+    },
+    {
+      "frame": "scene",
+      "point": [
+        -0.005683315917849541,
+        0.03888772428035736,
+        -0.020684707909822464
+      ],
+      "progress": 2.0,
+      "source": "right_branch_centerline_seed",
+      "route_progress": 82.0
+    },
+    {
+      "frame": "scene",
+      "point": [
+        -0.0010585212148725986,
+        0.09420628845691681,
+        -0.024142155423760414
+      ],
+      "progress": 3.0,
+      "source": "right_branch_centerline_seed",
+      "route_progress": 96.0
+    },
+    {
+      "frame": "scene",
+      "point": [
+        0.03478278964757919,
+        0.1711004376411438,
+        -0.02297641523182392
+      ],
+      "progress": 4.0,
+      "source": "right_branch_centerline_seed",
+      "route_progress": 112.0
+    },
+    {
+      "frame": "scene",
+      "point": [
+        0.05192307010293007,
+        0.2264542579650879,
+        -0.02685077115893364
+      ],
+      "progress": 5.0,
+      "source": "right_branch_centerline_seed",
+      "route_progress": 126.0
+    }
+  ],
+  "_wire_visual_right_dynamic_note": "Right-branch-only visual dynamic route points. These override global dynamic points only when task=right."
+}

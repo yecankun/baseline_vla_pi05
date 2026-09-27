@@ -1,0 +1,100 @@
+{
+  "schema": "libero_action_study_training_plan_v1",
+  "created_date": "2026-09-13",
+  "status": "implementation_and_gradient_checks_only_not_training_execution_authorization",
+  "allowed": {
+    "implementation": true,
+    "synthetic_optimizer_checkpoint_tests": true,
+    "public_gradient_only_check": true,
+    "public_optimizer_updates": false,
+    "new_features": false,
+    "rollout": false
+  },
+  "seeds": [
+    20260912,
+    20260913,
+    20260914
+  ],
+  "arms": [
+    "observed_action",
+    "normalized_zero_action"
+  ],
+  "gradient_output": "simulation_output/pi05_libero_action_study_gradient_check_v1",
+  "training_output": "simulation_output/pi05_libero_action_study_training_v1",
+  "training_authorization_path": "docs/libero-action-study-training-authorization-v1.json",
+  "current_scope": "Implement future exact200-per-arm/seed runner and guards. Before each gradient probe, the new evaluator replays complete frozen train/validation step0 predictions and statistics against the immutable reference. Public gradient checks use only first16 already frozen train draws per seed/arm;6 backward calls, no optimizer construction/update, cleared gradients and unchanged parameters. Synthetic optimizer/checkpoint unit tests are explicitly fixtures, not a public training run.",
+  "future_design": {
+    "execution_authorized": false,
+    "training_entrypoint_status": "not_implemented_for_multiepisode_study; old fixed-pair runner must not be repurposed by removing its guards",
+    "model_and_loss_unchanged": true,
+    "model_initialization_seeds": [
+      20260912,
+      20260913,
+      20260914
+    ],
+    "optimizer": {
+      "name": "AdamW",
+      "lr": 0.001,
+      "weight_decay": 0,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "eps": 1e-8,
+      "amsgrad": false,
+      "foreach": false,
+      "fused": false,
+      "maximize": false
+    },
+    "optimizer_updates_per_arm_seed": 200,
+    "total_future_optimizer_updates": 1200,
+    "batch_size": 16,
+    "gradient_clip_global_l2_norm": 1,
+    "sampling": "separate CPU torch.Generator per seed; uniform verified training group, then uniform episode within group, then uniform complete window; identical draws shared by both arms",
+    "normalization_and_sampler_hashes": "must be materialized and frozen after accepted source/feature pack and before any optimization",
+    "zero_arm_gradient_expectation": "action_projection.weight may have exactlyzero gradient when its input is zero; all graph-connected parameter gradients must exist and be finite; global norm must be nonzero; do not require each tensor to be nonzero",
+    "checkpoint": "only final200 per arm/seed; same safe save/reload checks, no best-validation selection",
+    "evaluation_steps": [
+      0,
+      200
+    ],
+    "device": "cpu",
+    "torch_version": "2.10.0+cu128",
+    "threads": 1,
+    "dtype": "float32",
+    "deterministic_algorithms": true,
+    "tf32": false,
+    "amp": false,
+    "scheduler": "none",
+    "loss_tuning_or_extra_updates": false
+  },
+  "training_gate": "A separate positive user-approved authorization JSON plus external SHA and --execute-training must bind this plan, passed gradient report and exact1200 future budget. This implementation never creates that authorization. The prospective source plan remains immutable; its historical execution_authorized=false is not edited.",
+  "checkpoint": "Only final200; old atomic no-overwrite/weights_only primitives retained. Caller-verified expected binding AND full metadata required at load. Old metadata.authorization_sha256 contains canonical arm/seed/provenance binding digest, not original authorization file hash; original is explicit in binding/envelope.",
+  "parameter_hashes": "Existing step0 parameter_hash retained for frozen random-reference checks; original smoke.parameter_sha retained for native checkpoint metadata. Distinct serialization schemes are never interchanged.",
+  "evaluation": "New single-arm evaluator reuses unchanged action transform, targets, full support, Totals and macro/micro. Current gradient_check first validates every frozen step0 prediction and statistic for all6 arms on1086/500 windows (624 model prediction batches), with no optimizer; it never calls or overwrites the old step0 runner. Future train repeats this fail-closed check for all6 arms before first optimizer. Final evaluation uses identical input/target hashes, action0 in zero arm, and checkpoint reload model; no checkpoint or seed selection.",
+  "recovery": "Exclusive new output only. Preserve failure and partial trace/checkpoints; no overwrite, automatic retry, resume, skipped steps or replacement seeds. Failed jobs cannot be counted as completed comparisons.",
+  "input_sha256": {
+    "simulation_output/pi05_libero_action_study_step0_v1/draws_seed20260914.json": "434b18002996a660ea1b713f7ac586a9fda77b808791ee7a24c0dfccde2b183b",
+    "simulation_output/pi05_libero_action_study_step0_v1/report.json": "1075355fc7ca0a519e40438aa6554cbf6fb3ec476b8be96c3abc8a9e480f3248",
+    "simulation_output/pi05_libero_action_study_step0_v1/draws_seed20260913.json": "deed27def86059b6b6cedf23cfb3314fb76d458088a3c060cd7675666f35b6d7",
+    "simulation_output/pi05_libero_action_study_step0_v1/draws_seed20260912.json": "12ee2519e5f40ec9cab0ef9f3de1b897c29a2fd21e609376951de7594670cdac",
+    "tools/pi05_libero_action_study_training.py": "d5f4430d769e1bae5d7741d3043bd1d662d82ab5ce833c95db1a24a682c9eb2f",
+    "simulation_output/pi05_libero_action_study_step0_v1/evaluation_trace.jsonl": "bde5618bc723f27f8d61727a0058d002f0ea9a82547dcdb3a5c5c1131690fa69",
+    "simulation_output/pi05_libero_action_study_step0_v1/status.json": "e423348157c99fd83a4a69db73068254fcb6ad9f6b1936d8899c85bf137bf4be",
+    "tools/audit_pi05_libero_action_study_step0.py": "8f48006545246bf74c83b8fe4aaab032db49d1454658b2aa7420e8623dfcdd2d",
+    "tools/run_pi05_libero_action_study_training.py": "06850b23f14b5a40c24f86f13a2ce62561ed4eff6b3e9cd30fb7794054a60992",
+    "tools/pi05_libero_world_model_training.py": "6157fa69b0092e13497f47ec5cc937934d652dd4dd17a107f445b34308bf2e7b",
+    "simulation_output/pi05_libero_action_study_step0_v1/sampling_index.json": "0952657872525d2374f2e64558532df3a3d1800cd471db711cc31feb674870ff",
+    "docs/libero-action-study-step0-plan-v1.json": "2716481652a40b783b55eaec4cd7ec54f6e7de845f0a249d54355b6ffedd21c9",
+    "tools/smoke_pi05_libero_world_model.py": "faddc62d7329231b75503d1263e81b2b08178af9602e7fbbc568ac661321cd3a"
+  },
+  "boundaries": {
+    "public_training_started": false,
+    "family_independence_verified": false,
+    "checkpoint_training_overlap_unknown": true,
+    "training_ready": false,
+    "formal_data_allowed": false,
+    "real_system_validated": false,
+    "causal_or_policy_benefit_claim": false
+  }
+}

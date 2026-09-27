@@ -1,0 +1,123 @@
+{
+  "schema": "libero_projection_scale_training_plan_v1",
+  "purpose": "Prospectively fixed one-factor matched-budget training of the output-scale operator; engineering development diagnostic only.",
+  "smoke_plan_sha256": "8976c32a2761c512220d1b6d102f0340411617cf213b9c4d1a48a9545b4aebe8",
+  "smoke_report_sha256": "16a2d07a686bb16b248d84ebaca1797a97eeb9886c5fbded8a3e85b5dcb25d66",
+  "reference_report_sha256": "a06f6957a6575502782e646eb76e5b69f75d8a4d57c1ab9ad9277008c5817520",
+  "output": "simulation_output/pi05_libero_projection_scale_training_v1",
+  "design": {
+    "seeds": [
+      20260912,
+      20260913,
+      20260914
+    ],
+    "arms": [
+      "observed_action",
+      "normalized_zero_action"
+    ],
+    "variants": [
+      "input_normalized",
+      "input_normalized_projection_scaled"
+    ],
+    "steps_per_model": 200,
+    "total_optimizer_steps": 2400,
+    "batch_size": 16,
+    "train_windows": 1086,
+    "validation_windows": 500,
+    "validation_episodes": [
+      1458,
+      1476,
+      1530,
+      1566
+    ],
+    "train_episodes": [
+      1312,
+      1419,
+      1518,
+      1520,
+      1531,
+      1633,
+      1674,
+      1690
+    ],
+    "history": 4,
+    "horizon": 3,
+    "hidden_dim": 128,
+    "parameter_elements": 1321352,
+    "optimizer": {
+      "name": "AdamW",
+      "lr": 0.001,
+      "weight_decay": 0,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "eps": 1e-8,
+      "amsgrad": false,
+      "foreach": false,
+      "fused": false,
+      "maximize": false
+    },
+    "clip_norm": 1,
+    "loss": "unchanged visual SmoothL1(beta=1) + 0.25 normalized-state SmoothL1(beta=1)",
+    "draws": "original_shared_200x16_per_seed",
+    "normalization_refit": false,
+    "formula": "z / sqrt(1 + mean(z**2, dim=-1, keepdim=True))",
+    "projection_scale_compute": "float64_intermediate_float32_output",
+    "evaluation_phases": [
+      "step0",
+      "final200"
+    ],
+    "evaluation_conditions": [
+      "clean"
+    ],
+    "evaluation_batching": "original_episode_homogeneous_33_batches",
+    "evaluation_forwards": 792,
+    "checkpoint_saves": 12,
+    "checkpoint_loads": 12,
+    "checkpoint_selection": false,
+    "training_execution_allowed": true,
+    "primary_arm": "observed_action",
+    "secondary_arm": "normalized_zero_action",
+    "reference_replay": "all1200_update_records_final_parameter_bytes_all396_clean_predictions_and_scores",
+    "primary_gain": "every_seed_objective_delta_negative_and_every_mean_global_and_horizon_visual_state_MAE_delta_nonpositive",
+    "original_raw_reference": "saved_matching_final200_metrics_only_not_new_training",
+    "aggregation": "episode_macro_then_equal_seed_mean; paired_population_std_descriptive_only",
+    "robustness_evaluation": false,
+    "validation_is_reused_development_set": true,
+    "backbone_training": false,
+    "policy_rollout": false,
+    "hyperparameter_search": false
+  },
+  "input_sha256": {
+    "tools/run_pi05_libero_projection_scale_training.py": "a755e222af79d34d201f8951f4320ae82e111f39edc5380e75043051742f68d2",
+    "tools/test_run_pi05_libero_projection_scale_training.py": "dfef28cb2119c6d1fb2764db2ae310365da05446f0d9f16e4e8821bc183b6f50",
+    "tools/pi05_libero_projection_scale_checkpoint.py": "2447c0e1fee331529c28419889f83e8899ff2b63f76a17c26d218e55d28e59ae",
+    "tools/test_pi05_libero_projection_scale_checkpoint.py": "ac683b1527a3699e1184cf483a2ceb6c2da1a1bf9d92fc5b2844a8a822ec140e"
+  },
+  "runtime": {
+    "host": "project4090",
+    "python": "/home/zsw/miniconda3/envs/project2026-pi/bin/python",
+    "torch": "2.10.0+cu128",
+    "device": "cpu",
+    "model_dtype": "float32",
+    "threads": 1,
+    "estimated_whole_job_minutes": "3-5; prior 2400-update comparison 221.62 seconds with twice as many evaluation forwards",
+    "no_overwrite": true,
+    "no_retry": true,
+    "no_resume": true
+  },
+  "claims_and_guards": [
+    "Latest user approval authorizes implementation and this bounded matched comparison. Do not expand budget, tune loss, operator constant or capacity.",
+    "Original immutable feature cache, 8/4 complete episode split, three seeds, 200x16 original shared draws and train-only input statistics; no refit or new encoding.",
+    "No PI0.5 backbone fine-tuning, mixed-head/guidewire interface change, collector changes, project-data reads, oracle inputs or policy rollout.",
+    "Fit both fresh variants for exactly200 updates, save final200 only in a new strict envelope; never convert old checkpoints or select a best validation checkpoint.",
+    "Primary observed-action comparison: every seed objective must decrease and equal-seed means of aggregate and each h1/h2/h3 visual and normalized-state MAE must not increase. Report failed guards, absolute/relative deltas and paired population SD; no significance claim.",
+    "Report RMSE, separate visual/state SmoothL1 components, per-episode metrics, per-horizon/per-view detail and effective/raw vector RMS. Vector RMS control is structural, not evidence of quality or all coordinates being unsaturated.",
+    "Secondary normalized-zero-action remains separate. Winning the normalized reference does not automatically win the original saved raw baseline; report both without automatic promotion.",
+    "Clean-only evaluation step0/final200 on500 windows in33 original episode-homogeneous batches per model/phase. No noise interventions rerun and no robustness claim.",
+    "Reference normalized model must replay all1200 training records,396 clean evaluation prediction/score groups,6 final model states, per-episode/micro/base-macro metrics and activation summaries.",
+    "Validation has already been used in development. This is not an independent test, family generalization, policy benefit, architectural innovation, formal-training-readiness or real-system result.",
+    "Any failure preserves partial outputs. Inspect status/failure/started process before retry consideration; no automatic retry/resume. Large transfers over100MB remain user-owned."
+  ]
+}

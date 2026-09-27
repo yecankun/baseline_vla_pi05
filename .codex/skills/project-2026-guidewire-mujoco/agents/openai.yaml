@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project 2026 Guidewire MuJoCo"
+  short_description: "Guardrails for guidewire MuJoCo work"
+  default_prompt: "Use the Project 2026 guidewire MuJoCo workflow for data collection, training, rollout, and diagnostics."

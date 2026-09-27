@@ -1,0 +1,57 @@
+{
+  "schema": "libero_visual_normalization_plan_v1",
+  "authorization_context": "User explicitly approved steps 1 and 2: train-only visual preprojection normalization and matched-budget validation, not a capacity or activation upgrade.",
+  "prior_plan_sha256": "3a0c79f69dffc998394795057ceb1ce2e1e8841cd55f46cefc8fba00f3a6c1ea",
+  "prior_report_sha256": "963dad4c9450cf6c34e4be3b1a3be04e06861502c099f0e6188864aaaba8e980",
+  "smoke_output": "simulation_output/pi05_libero_visual_normalization_smoke_v1",
+  "output": "simulation_output/pi05_libero_visual_normalization_v1",
+  "design": {
+    "seeds": [20260912, 20260913, 20260914],
+    "arms": ["observed_action", "normalized_zero_action"],
+    "variants": ["baseline", "train_visual_normalized"],
+    "steps_per_model": 200,
+    "total_optimizer_steps": 2400,
+    "batch_size": 16,
+    "train_windows": 1086,
+    "validation_windows": 500,
+    "train_unique_rows": 1134,
+    "scale_floor": 0.1,
+    "fit_partition": "train_unique_complete_episode_rows_only",
+    "fit_dtype": "float64",
+    "apply_dtype": "float32",
+    "conditions": ["clean", "repeat_current", "fixed_train_anchor"],
+    "optimizer": {
+      "name": "AdamW", "lr": 0.001, "weight_decay": 0.0,
+      "betas": [0.9, 0.999], "eps": 1e-8, "amsgrad": false,
+      "foreach": false, "fused": false, "maximize": false
+    },
+    "clip_norm": 1.0,
+    "training_execution_allowed": true,
+    "backbone_training": false,
+    "policy_rollout": false,
+    "checkpoint_selection": false,
+    "hyperparameter_search": false,
+    "primary_arm": "observed_action",
+    "decision": "all_three_primary_objective_deltas_negative_and_both_mean_MAEs_nonpositive",
+    "responsiveness": "descriptive_drift_and_intervened_target_error_not_automatic_benefit"
+  },
+  "interpretation": {
+    "normalization": "Per view/coordinate float64 mean and population std over complete unique train rows; float32 (raw-mean)/max(std,0.1) only before Linear; invalid views zeroed again.",
+    "floor_reason": "Prospective raw-feature floor limits inverse scaling to 10; no validation-derived tuning or alternate floor sweep.",
+    "fairness": "Original class baseline and new subclass start from identical named parameter bytes; same frozen 3200 draws per seed, fixed AdamW/loss/clip, CPU torch2.10 threads1. All six fresh baselines must replay old final parameter and clean prediction hashes exactly.",
+    "held_fixed": "Raw visual skip and future targets, original state/action normalization, task encoding, backbone, learned module sizes, tanh and losses remain unchanged.",
+    "decision_scope": "Observed-action primary: every seed clean masked objective decreases and seed-mean state/visual MAE both nonincreasing. Zero-action arm separate. This is descriptive reuse of one-task four development validation episodes, not independent-test generalization.",
+    "desaturation": "All three primary seeds and both views reduce equal-episode macro fraction abs(tanh)>=0.99 versus paired baseline; mechanism evidence only.",
+    "interventions": "Reuse original repeat-current and train episode1312/frame0 anchor; state/action/task/masks and scoring targets unchanged. Report output/residual drift and target error separately. Larger drift is not an improvement criterion.",
+    "checkpoint": "New independent schema with persistent normalization buffers and external smoke/artifact/code provenance. Final200 only, no optimizer state, no resume, no best-checkpoint selection. Exclusive writes preserve partial artifacts on failure; not atomic publication.",
+    "claims_excluded": "PI0.5 policy improvement, guidewire/Elite/Piper capability, rotation, tactile/contact, formal-readiness, real-system validation, causal mechanism proof and architecture innovation.",
+    "estimated_runtime": "One complete remote CPU job approximately 3-5 minutes, based on previous 1200-update job 90.32s plus frozen evaluation timings; no workload splitting to avoid runtime policy.",
+    "failure_recovery": "Preserve started/failure/traces and completed arm checkpoints. Inspect PID before assuming disconnect means failure. No overwrite, automatic retry, extra steps or implicit resume. A fresh attempt needs a reviewed protocol/output."
+  },
+  "input_sha256": {
+    "tools/pi05_libero_visual_normalization.py": "cc4e92110781027ee0607bdf6cf2b2a949146468276afd461dde3f95834169b6",
+    "tools/run_pi05_libero_visual_normalization.py": "d061eb76c83ba2bcf8005c4ec7b0ff0db061063d630d8faaef5d119eac8f18f3",
+    "tools/test_pi05_libero_visual_normalization.py": "c0f0dc4a00ae5e17d55e910771362fe3fa4dbbab3d31a860d4a7fabc5bd85ae7",
+    "tools/test_run_pi05_libero_visual_normalization.py": "0f180173e46a543d64d4990bb03e0a0eeef5722ccd69950ecbf54203010c3920"
+  }
+}

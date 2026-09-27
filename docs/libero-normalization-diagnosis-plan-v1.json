@@ -1,0 +1,98 @@
+{
+  "schema": "libero_normalization_diagnosis_plan_v1",
+  "purpose": "Read-only engineering diagnosis of renewed visual projection saturation and final clean prediction-error redistribution; not a training or model-selection experiment.",
+  "prior_report_sha256": "a06f6957a6575502782e646eb76e5b69f75d8a4d57c1ab9ad9277008c5817520",
+  "prior_audit_sha256": "a1764475325244a135013e27c9d3af5b5d2c6224f2b18725bfe1ee75f8127166",
+  "seeds": [
+    20260912,
+    20260913,
+    20260914
+  ],
+  "arms": [
+    "observed_action",
+    "normalized_zero_action"
+  ],
+  "variants": [
+    "baseline",
+    "train_visual_normalized"
+  ],
+  "output": "simulation_output/pi05_libero_normalization_diagnosis_v1",
+  "scope": {
+    "optimizer_updates": 0,
+    "backward_calls": 0,
+    "feature_encodings": 0,
+    "rollout_steps": 0,
+    "model_forwards": 396,
+    "validation_windows": 500,
+    "unique_train_rows": 1134,
+    "unique_validation_rows": 524,
+    "input_interventions": false,
+    "model_weight_interventions": false,
+    "retraining": false,
+    "normalization_refit": false,
+    "diagnostic_centered_moments": true,
+    "covariance_matrix_or_svd": false,
+    "projection_geometry_float64_pairs": 48,
+    "baseline_absolute_error_bin_edges": [
+      0.01,
+      0.05,
+      0.1,
+      0.5,
+      1
+    ],
+    "step_intervals": [
+      [
+        1,
+        20
+      ],
+      [
+        21,
+        50
+      ],
+      [
+        51,
+        100
+      ],
+      [
+        101,
+        150
+      ],
+      [
+        151,
+        200
+      ]
+    ]
+  },
+  "input_sha256": {
+    "tools/run_pi05_libero_normalization_diagnosis.py": "dd1cdb324f28b288b5c8d9a1a7a3d2a0fdb7101250348682fb4f8ebc0f61c49c",
+    "tools/test_run_pi05_libero_normalization_diagnosis.py": "307b2b73a6f4de71e087825c42cad502a5b1c956ce593f484ceabcd29d8216ff",
+    "tools/pi05_libero_normalization_trace_diagnosis.py": "9c15f5454119b29eda77eddbfc2a5511ea88ca0fcfbc1e7278913b43e529bdf1",
+    "tools/test_pi05_libero_normalization_trace_diagnosis.py": "5dda04e55f97e7ad0028dcf20efa36fd138268c32b156e3fa3eb4fc257d2ed46",
+    "tools/pi05_libero_projection_geometry.py": "0fda06ceb866a195fe69f4edf15c325b3be3abeaeac27b011f972cac6114b63b",
+    "tools/test_pi05_libero_projection_geometry.py": "56f2d553b123fe741d234ed28bf909984322014cff6f63e269dff5beac6afe93"
+  },
+  "runtime": {
+    "host": "project4090",
+    "python": "/home/zsw/miniconda3/envs/project2026-pi/bin/python",
+    "device": "cpu",
+    "dtype": "float32",
+    "threads": 1,
+    "diagnostic_algebra": "numpy float64 on actual float32 projection inputs",
+    "estimated_whole_job_minutes": "1-3",
+    "overwrite": false,
+    "automatic_retry": false,
+    "resume": false
+  },
+  "interpretation_guards": [
+    "Initial parameters must match original initial SHA; final frozen parameters must match original checkpoint SHA.",
+    "All 396 final clean predictions and all 48 original per-episode scores must replay exactly.",
+    "Unique-row projection statistics do not use overlapping-window weighting and must not be equated numerically with prior activation window statistics.",
+    "Diagonal-covariance reference is descriptive coordinate-correlation algebra, not an intervention or causal contribution percentage.",
+    "Step0/final200 endpoints cannot establish saturation onset; sampled-batch loss and gradient bins are not fixed-set learning curves.",
+    "Primary observed_action and separate normalized_zero_action are never pooled.",
+    "Use original float64-before-subtraction MAE/RMSE and float32 SmoothL1 beta=1; total objective equals visual mean plus 0.25 state mean.",
+    "Error bins are fixed baseline-conditioned shared bins within each seed/arm; contributions use whole-episode denominator and then equal-episode mean.",
+    "Empty bins retain zero support with null conditional means; conditioning permits regression-to-mean and does not prove denoising.",
+    "No branch-gradient causal attribution, new normalization fit, architecture upgrade, loss tuning, policy benefit, or independent-test claim."
+  ]
+}

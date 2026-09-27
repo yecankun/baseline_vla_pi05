@@ -1,0 +1,34 @@
+{
+  "generated_at": "2026-05-27T11:03:16.285320+00:00",
+  "repo_root": "D:/PycharmProjects/project_2026",
+  "output_root": "D:/PycharmProjects/project_2026/robot_assets/standardized",
+  "packages": [
+    {
+      "name": "piper_description",
+      "source": "D:/PycharmProjects/project_2026/robot_assets/piper_ros/src/piper_description",
+      "destination": "piper_description",
+      "aliases": [
+        "gripper_description"
+      ],
+      "default_variants": [
+        "urdf/piper_no_gripper_description.urdf",
+        "urdf/piper_description.urdf",
+        "urdf/piper_description_with_camera.urdf",
+        "urdf/piper_description_v100.urdf"
+      ],
+      "rewritten_files": 17
+    },
+    {
+      "name": "elite_description",
+      "source": "D:/PycharmProjects/project_2026/robot_assets/elite_ros/src/elite_description",
+      "destination": "elite_description",
+      "aliases": [],
+      "default_variants": [
+        "urdf/ec66_description.urdf",
+        "urdf/ec63_description.urdf",
+        "urdf/ec612_description.urdf"
+      ],
+      "rewritten_files": 6
+    }
+  ]
+}

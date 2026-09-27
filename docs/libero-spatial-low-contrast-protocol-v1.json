@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "protocol_id": "libero_spatial_low_contrast_paired_v1",
+  "evidence_scope": "public_benchmark_paired_diagnostic_not_architecture_gain",
+  "benchmark": {
+    "suite": "libero_spatial",
+    "native_state_dim": 8,
+    "native_action_dim": 7,
+    "native_horizon": 280,
+    "control_mode": "relative",
+    "init_states": true,
+    "num_steps_wait": 10,
+    "batch_size": 1,
+    "use_async_envs": false,
+    "max_parallel_tasks": 1,
+    "raw_image_paths": [
+      "pixels.image",
+      "pixels.image2"
+    ],
+    "raw_image_shape_hwc": [
+      256,
+      256,
+      3
+    ],
+    "raw_image_dtype": "uint8",
+    "policy_image_shape_chw": [
+      3,
+      256,
+      256
+    ],
+    "internal_image_hw": [
+      224,
+      224
+    ]
+  },
+  "schedule": {
+    "conditions": [
+      "clean",
+      "low_contrast"
+    ],
+    "seed": 1000,
+    "init_state_index": 0,
+    "check_task_ids": [
+      0
+    ],
+    "screen_task_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "check_episode_count": 2,
+    "screen_episode_count": 20,
+    "full_episodes": true,
+    "reuse_check_episodes_for_screen": false,
+    "reuse_historical_clean_scores": false
+  },
+  "policy": {
+    "chunk_size": 50,
+    "n_action_steps": 10,
+    "num_inference_steps": 10,
+    "dtype": "bfloat16",
+    "compile_model": true,
+    "compile_mode": "max-autotune",
+    "empty_cameras": 1,
+    "n_obs_steps": 1,
+    "optimizer_steps": 0,
+    "checkpoint_or_architecture_changes": false
+  },
+  "corruption": {
+    "name": "low_contrast",
+    "severity": 2,
+    "alpha": 0.45,
+    "seed": 20260911,
+    "image_paths": [
+      "pixels.image",
+      "pixels.image2"
+    ],
+    "insertion_boundary": "raw_observation_before_policy_preprocessing",
+    "formula": "per_channel_spatial_mean + alpha * (pixel - per_channel_spatial_mean)",
+    "quantization": "float32_unit_interval_then_numpy_rint_uint8",
+    "independent_rng": true,
+    "geometry_state_task_reward_termination_unchanged": true,
+    "evaluation_only": true
+  },
+  "controller": {
+    "raw_action_reference_bounds": [
+      -1.0,
+      1.0
+    ],
+    "finite_native_7d_required": true,
+    "raw_overshoot_is_strict_failure": false,
+    "raw_overshoot_reporting": "per_episode_per_dimension_count_and_extrema",
+    "additional_wrapper_clipping_allowed": false,
+    "native_osc_clip_and_scale_retained": true,
+    "native_gripper_sign_and_internal_clip_retained": true,
+    "native_methods_must_remain_unchanged": true
+  },
+  "pairing": {
+    "policy_queue_reset_each_arm": true,
+    "global_rng_seed_before_each_rollout": 1000,
+    "actual_init_payload_hash_required": true,
+    "initial_observation_hash_scope": "complete_raw_post_settle_observation_before_corruption",
+    "first_inference_rng_hash_scope": "python_numpy_torch_cpu_and_all_cuda_rng_states",
+    "equal_initial_observation_required": true,
+    "equal_first_inference_rng_required": true,
+    "action_sequences_may_diverge": true
+  },
+  "execution": {
+    "check_expected_minutes_max": 5,
+    "screen_expected_minutes_range": [
+      5,
+      10
+    ],
+    "screen_user_run_by_default": true,
+    "separate_fresh_stage_output_directories": true,
+    "overwrite_or_resume_partial_results": false,
+    "source_hash_drift_is_failure": true
+  },
+  "reporting": {
+    "success_source": "native_environment_success",
+    "delta_pp": "100 * (low_contrast_success_rate - clean_success_rate)",
+    "relative_drop": "(clean_success_rate - low_contrast_success_rate) / clean_success_rate",
+    "relative_drop_when_clean_zero": null,
+    "paired_outcomes": [
+      "both_success",
+      "clean_only",
+      "low_contrast_only",
+      "both_failure"
+    ],
+    "per_task_required": true,
+    "statistical_significance_claim": false
+  },
+  "claims": {
+    "training": false,
+    "model_selection": false,
+    "architecture_gain": false,
+    "robustness_certainty": false,
+    "real_system_validated": false,
+    "guidewire_score": false,
+    "historical_b4b_reclassification": false
+  },
+  "provenance": {
+    "historical_protocol": {
+      "path": "docs/libero-spatial-score-protocol-v1.json",
+      "sha256": "b72b854d04b05930c2c1b35f384938a875e144002963f08771a2e6fc649dbdd1"
+    },
+    "source_files": {
+      "tools/run_pi05_libero_b4b.py": "02473bf81232b037ac0aef88d952966e7a45bd62c19643dcf2e0a4de30e64783",
+      "tools/vla_benchmark_contract.py": "c2b5dce0690e6c572b423a380e8123dbc1dbb02252ca598dd9107fc650f0fb00",
+      "tools/vla_visual_noise_wrapper.py": "642e4ec1f84a1eb658d433436f53ae5305eeabb581bde06cdbfa35394759f986"
+    },
+    "checkpoint": {
+      "logical_path": "/home/zsw/models/project_2026/pi05_libero_finetuned_8e174154",
+      "resolved_path": "/media/zsw/SSD1T/project_2026_weights_v1/models/pi05_libero_finetuned_8e174154",
+      "sha256_by_file": {
+        "model.safetensors": "877b3ec1130548b69af7f8aeef3ec9d3fc7738040f0b9beb490857ec970997ae",
+        "config.json": "2f6d4b96b032593e1de65b391ee7252a70227bff398ef1b94658fea17818142f",
+        "policy_preprocessor.json": "3d669ffc18d0364536735d8203076dcc69d3a6523aa5956ccaada3f9e1e6b748",
+        "policy_postprocessor.json": "37d719a6584600988e6c343306d2eaee0575109f235ad500313577f73e47e8a1",
+        "policy_preprocessor_step_2_normalizer_processor.safetensors": "a002c0df7f79c5b169c5a899ad151d4ea1bed246c7d82bd93ed1556558d517a9",
+        "policy_postprocessor_step_0_unnormalizer_processor.safetensors": "a002c0df7f79c5b169c5a899ad151d4ea1bed246c7d82bd93ed1556558d517a9"
+      }
+    },
+    "runtime_sources": {
+      "/home/zsw/miniconda3/envs/project2026-pi/lib/python3.10/site-packages/lerobot/envs/libero.py": "02bc214e6b011c7f64b25604c97f1f083a96e151fa239fdc137433b356e542f3",
+      "/home/zsw/miniconda3/envs/project2026-pi/lib/python3.10/site-packages/lerobot/policies/pi05/modeling_pi05.py": "772b6f17a899b11285fde3f39a56a3be9c429bcb001941fac5bf5d7723a34413",
+      "/home/zsw/miniconda3/envs/project2026-pi/lib/python3.10/site-packages/lerobot/scripts/lerobot_eval.py": "cb0e1c2d891b93b41cb7b97921188fe2fd20ea6fa05675b87835b06c648ecce7",
+      "/home/zsw/miniconda3/envs/project2026-pi/lib/python3.10/site-packages/robosuite/controllers/base_controller.py": "61f99a2daeb4eb6e39bfb996d94c5a5689ef3bc771d030d070193ea56d6a8332",
+      "/home/zsw/miniconda3/envs/project2026-pi/lib/python3.10/site-packages/robosuite/controllers/osc.py": "cfa62a0e719bc53ef0c701efa66f7b3e2272d4fca2150ec73c05bb145eba85cb",
+      "/home/zsw/miniconda3/envs/project2026-pi/lib/python3.10/site-packages/robosuite/models/grippers/panda_gripper.py": "a3760a8fc4599fa6f79914304b82466f3c1bda1a945943ca693bb57f00dc59eb",
+      "/home/zsw/miniconda3/envs/project2026-pi/lib/python3.10/site-packages/robosuite/robots/single_arm.py": "d233b1b785e8f88ffb5df1357666b02a397ae930ce98181b079e0496ab35fc57"
+    },
+    "versions": {
+      "lerobot": "0.4.4",
+      "hf-libero": "0.1.4",
+      "transformers": "4.53.2",
+      "tokenizers": "0.21.4"
+    },
+    "boundary_evidence": {
+      "manifest_path": "simulation_output/pi05_libero_action_boundary_v1/run_manifest.json",
+      "manifest_sha256": "9f09dc0bb0d031eae0bdbef0af332d8acf4aebb55d8fd0dda42a12ba33c1a3cf",
+      "effective_policy_config_path": "simulation_output/pi05_libero_action_boundary_v1/effective_policy_config.json",
+      "effective_policy_config_sha256": "3a6394e0f93219e1801a11537888b23e0abeeab58291217ccf9f277e6ad9be16"
+    }
+  }
+}

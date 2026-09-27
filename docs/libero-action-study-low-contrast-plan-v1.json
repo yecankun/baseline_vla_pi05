@@ -1,0 +1,82 @@
+{
+  "schema": "libero_action_study_low_contrast_plan_v1",
+  "created_date": "2026-09-13",
+  "authorization_record": "User approved fixed-checkpoint clean/low-contrast paired evaluation; agent execution record, not a digital signature. No training or policy rollout.",
+  "allowed": {
+    "validation_feature_extraction": true,
+    "frozen_checkpoint_evaluation": true,
+    "optimizer_updates": false,
+    "normalization_refit": false,
+    "checkpoint_selection": false,
+    "policy_rollout": false,
+    "project_data_inspection": false
+  },
+  "seeds": [
+    20260912,
+    20260913,
+    20260914
+  ],
+  "arms": [
+    "observed_action",
+    "normalized_zero_action"
+  ],
+  "conditions": [
+    "clean",
+    "low_contrast"
+  ],
+  "validation_episode_counts": {
+    "1458": 130,
+    "1476": 125,
+    "1530": 126,
+    "1566": 143
+  },
+  "validation_windows": 500,
+  "feature_rows": 524,
+  "feature_output": "simulation_output/pi05_libero_action_study_low_contrast_features_v1",
+  "evaluation_output": "simulation_output/pi05_libero_action_study_low_contrast_eval_v1",
+  "corruption": {
+    "name": "low_contrast",
+    "severity": 2,
+    "alpha": 0.45,
+    "seed": 20260911,
+    "boundary": "stored_uint8_RGB_before_unchanged_native_preprocessing",
+    "targets": "original_clean_future_visual_and_state_targets",
+    "formula": "per_channel_spatial_mean + alpha * (pixel - per_channel_spatial_mean)",
+    "rounding": "float32_unit_interval_then_numpy_rint_uint8"
+  },
+  "protocol": {
+    "dataset": "Unchanged pinned LIBERO Spatial9/source39 fixed12 pack; evaluate original4 validation episodes only, all500 complete history4/horizon3 windows. No source replacement or row truncation.",
+    "features": "Sequential524 clean replay then524 low-contrast rows, two views each,2096 actual view embeddings. Every clean latent must byte-match original cache, no tolerance. Only degraded history_visual_latent enters evaluation; future targets remain original clean cache.",
+    "frozen": "All six final200 checkpoints kept; same task instruction, state8, action7, masks, train-only saved normalization and evaluation window/batch order. No fitting, optimizer construction, new checkpoint, or best-seed selection. Dataset independently recomputes train statistics only to verify the original artifact.",
+    "zero_arm": "Exactly zero in normalized candidate-action coordinates during both evaluations; corresponds to raw training action mean, not physicalzero/hold.",
+    "clean_guard": "All six model clean predictions/per-episode/macro/micro must exactly replay saved final200 before degraded evaluation. Full checkpoint binding retains original training authorization, not evaluation-plan authorization.",
+    "baselines": "Both fixed action arms and parameter-free persistence; persistence uses each condition's last visual latent, state residual0, same original clean targets/support.",
+    "primary": "Per-validation-episode normalized8D state MAE and episode-equal macro. Report low_contrast-clean and observed-zero absolute/relative changes for every seed/episode; average macros over3 fixed optimizer seeds with descriptive population std of paired differences.",
+    "secondary": "Visual latent MAE/RMSE, normalized-state RMSE, unchanged masked objective, per-view/horizon/coordinate/same-unit and window-weighted micro. Separate state and visual sensitivity; no composite-only conclusion.",
+    "decision": "Descriptively retain observed-action association only if observed beats normalizedzero AND persistence on degraded-state episode-macro for every seed. Report clean-to-degraded sensitivity irrespective of decision; no automatic tuning or robustness threshold/certification.",
+    "efficiency": "GPU frozen image feature extraction, then separate CPU torch2.10.0+cu128 float32/threads1/deterministic/noAMP/TF32/CUDA evaluation. Record feature/load/hash and evaluation wall times; fixed order/warmup prevents comparative hardware-speed claims.",
+    "ablations": "Only existing candidate-action ablation is carried forward. No history/state/vision knockout or new model module in this budget; do not claim their causal contribution. XAI is not a contribution.",
+    "visual_evidence": "First/last frames of all4 validation episodes in both views, raw/processed clean/degraded; Chinese comparison sheet for representative visual inspection. User visual acceptance is separate.",
+    "recovery": "Exclusive fixed feature/eval outputs, no overwrite/resume/automatic retry. Preserve partial traces/failure; inspect actual PID/status before considering a new attempt."
+  },
+  "limitations": [
+    "Only4 held-out episodes in one task; 3 optimizer seeds do not create12 independent data units. Descriptive results, no significance.",
+    "True state/action/history remain uncorrupted. Stable state MAE alone does not establish visual reliance or visual robustness.",
+    "Visual prediction has a latest-latent skip plus residual; degraded-input to clean-target error combines representation shift and prediction/denoising error, not pure dynamics error.",
+    "Low-contrast alpha.45 is deterministic and not calibrated vessel oxidation; fixedseed does not establish noise-seed stability. No severity sweep.",
+    "Unknown PI0.5 pretraining overlap and unverified source-family independence remain. Existing validation observations have been inspected.",
+    "No causal control effect, counterfactual candidate ranking, guidewire/Elite/Piper performance, policy success, tactile/contact, rotation, formal-readiness, or real-system claim."
+  ],
+  "runtime_estimate": "Prior1658-row cache67.66s; sequential1048-row clean/degraded workload plus strict source/weight hashes/load and396 CPU model forwards conservatively3-4minutes as one logical job. Execute within current approved scope; no optimization.",
+  "planning_skill_scope": "Experiment protocol checklist applied to engineering evaluation, not manuscript Results/Discussion; no mock metric, paper section or fabricated result.",
+  "input_sha256": {
+    "tools/run_pi05_libero_action_study_low_contrast.py": "31d365d6794cdad50e3ce9f920d32a4839155392140dace3959c5bb8e548c918",
+    "tools/pi05_libero_action_study_low_contrast.py": "147914f6074cfd2de4aaa0e5f8b131641c5ffb062cacc1ca3bedaf39e86bf583",
+    "tools/pi05_libero_action_study_low_contrast_features.py": "4b6cb0989cfbd36881964784e0a5ecb3fe0bc10ab6d3fd45b0673e647496be99",
+    "tools/build_pi05_libero_action_study_features.py": "8f796c16903e684caa02691a0ff72d6661a03e60c84ee451d2795d12712fdb4c",
+    "tools/pi05_libero_action_study_feature_source.py": "d60422d1f450990be1247edd30bc923b5ac847a1e9986fe5a892a2d6313c07ed",
+    "tools/vla_benchmark_contract.py": "c2b5dce0690e6c572b423a380e8123dbc1dbb02252ca598dd9107fc650f0fb00",
+    "tools/vla_visual_noise_wrapper.py": "642e4ec1f84a1eb658d433436f53ae5305eeabb581bde06cdbfa35394759f986",
+    "simulation_output/pi05_libero_action_study_training_v1/report.json": "837cb7b8df45a3b7230e979f9378d91b0177242e98449f6a60ed1608ad2fe5bf"
+  }
+}

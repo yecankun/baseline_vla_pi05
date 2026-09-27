@@ -1,0 +1,9 @@
+{
+  "schema": "libero_action_study_training_authorization_v1",
+  "training_execution_allowed": true,
+  "training_plan_sha256": "34ab3e9c9aedd0da7a2dbecb8100cf448c7f5eb8fa358244b1340e7d68ef5302",
+  "gradient_check_report_sha256": "6eefb781f633e705d763af4191b374e61c931e48399b3d01b3803d6ac75f2ef6",
+  "optimizer_updates_per_arm_seed": 200,
+  "total_optimizer_updates": 1200,
+  "output": "simulation_output/pi05_libero_action_study_training_v1"
+}

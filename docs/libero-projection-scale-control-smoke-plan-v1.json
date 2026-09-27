@@ -1,0 +1,74 @@
+{
+  "schema": "libero_projection_scale_control_smoke_plan_v1",
+  "purpose": "Implement and check a single fixed post-visual-Linear scale operator on fresh matched initial models; no training comparison.",
+  "prior_report_sha256": "a840d53abfbaf8574cdb53bb2e9ce567984ecd9f85cf68677e06f6e5b3282427",
+  "output": "simulation_output/pi05_libero_projection_scale_control_smoke_v1",
+  "design": {
+    "seeds": [
+      20260912,
+      20260913,
+      20260914
+    ],
+    "arms": [
+      "observed_action",
+      "normalized_zero_action"
+    ],
+    "variants": [
+      "input_normalized",
+      "input_normalized_projection_scaled"
+    ],
+    "batch_source": "original_shared_train_draw_step1",
+    "batch_size": 16,
+    "train_windows": 1086,
+    "model_initialization": "same_original_seed_step0_named_parameters",
+    "gradient_checks": 12,
+    "model_forwards": 24,
+    "backward_calls": 12,
+    "optimizer_updates": 0,
+    "optimizer_constructed": false,
+    "validation_forwards": 0,
+    "normalization_refit": false,
+    "checkpoint_loads": 0,
+    "checkpoint_saves": 0,
+    "feature_encodings": 0,
+    "rollout_steps": 0,
+    "original_loss_unchanged": true,
+    "added_trainable_parameters": 0,
+    "formula": "z / sqrt(1 + mean(z**2, dim=-1, keepdim=True))",
+    "projection_scale_compute": "float64_intermediate_float32_output",
+    "rms_rounding_tolerance": 0.000001,
+    "scalar_saturation_elimination_claim": false,
+    "model_quality_comparison": false,
+    "training_execution_allowed": false
+  },
+  "input_sha256": {
+    "tools/pi05_libero_projection_scale_control.py": "4efd3a5d22eaac86a0fc0576bafff209a280d99980182ee624ddf02a349d3fd5",
+    "tools/test_pi05_libero_projection_scale_control.py": "c54ed47563d95f95e1360215433266a7937556a51b24d9053e98c213233765a6",
+    "tools/run_pi05_libero_projection_scale_control.py": "3be52470e9cc32994e16e2d75e5b831b7a2bb2f31b5bc08720a6fa7e3d3f5d91",
+    "tools/test_run_pi05_libero_projection_scale_control.py": "f58d668f86bac29481cf49a481563eac9c4acff82579307e1aebef0c716089cb"
+  },
+  "runtime": {
+    "host": "project4090",
+    "python": "/home/zsw/miniconda3/envs/project2026-pi/bin/python",
+    "device": "cpu",
+    "model_dtype": "float32",
+    "threads": 1,
+    "estimated_whole_job_minutes": "less than 1",
+    "no_overwrite": true,
+    "no_retry": true,
+    "no_resume": true
+  },
+  "claims_and_guards": [
+    "Only two visual projection outputs are scaled; original tanh, input normalization, masked raw skip, labels, tasks, actions and loss remain unchanged.",
+    "No learned affine, batch/running statistics, new trainable parameters, centering or validation-tuned scale constant.",
+    "Per-vector mathematical RMS r/sqrt(1+r*r) is at most 1 up to float32 rounding; individual coordinates may still saturate tanh.",
+    "The operator compresses amplitude information and may attenuate gradients; no nonzero float32 gradient lower bound is promised.",
+    "Same-seed variants must have byte-identical named parameters and disjoint parameter storage; preserve the current old reference.",
+    "Input-normalized reference must exactly replay the old train-step1 smoke input/target/draw/prediction/activation/gradient checks.",
+    "Controlled variant uses a new schema and persistent int64 version marker; old native or normalization-only checkpoints must fail strict loading.",
+    "No existing learned checkpoint is loaded or modified; synthetic in-memory state roundtrip is not a trained checkpoint deliverable.",
+    "Full-pack hashes and prior read-only provenance audit may inspect validation bytes; this smoke performs zero validation predictions or model selection.",
+    "Report only interface, numerical, masking, candidate-causality and zero-update evidence. Training gains require a separately authorized matched-budget experiment.",
+    "No policy rollout, PI0.5 backbone operation, project data inspection, oracle fields, tactile/rotation, formal-readiness or real-system claim."
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "schema": "pi05_libero_feature_pair_plan_v1",
+  "scope": "single_task_complete_episode_pipeline_diagnostic_only",
+  "source_repo_id": "lerobot/libero",
+  "source_revision": "a1aaacb7f6cd6ee5fb43120f673cebb0cfea7dd4",
+  "prior_source_report_sha256": "0d431859588a2f14758fbf1c27b17e1ec6114f161c14f5cc246ae2e55317c4e5",
+  "selected_task_id": 9,
+  "source_task_index": 39,
+  "episodes": [
+    {"episode_index": 1400, "record_count": 140, "partition": "train"},
+    {"episode_index": 1401, "record_count": 89, "partition": "validation"}
+  ],
+  "selection_basis": "reuse previously audited episode1400 and the next declared source episode1401; fixed before loading second episode actions/images or extracting full features; not reward/quality based",
+  "context_len": 4,
+  "horizon": 3,
+  "fps": 10.0,
+  "orientation": "stored_dataset_rgb_no_extra_flip",
+  "max_records": 300,
+  "duplicate_guard": {
+    "window_length": 7,
+    "state_quantization": 0.0001,
+    "action_quantization": 0.001,
+    "reject_cross_split_matching_state_action_window": true,
+    "reject_cross_split_matching_two_view_pixel_window": true
+  },
+  "split_scope": "disjoint_source_episode_ids_for_pipeline_diagnostic_not_verified_independent_family",
+  "family_independence_verified": false,
+  "checkpoint_training_overlap_unknown": true,
+  "policy_generalization_evaluation_allowed": false,
+  "training_ready": false,
+  "training_authorized": false,
+  "full_suite_coverage": false
+}

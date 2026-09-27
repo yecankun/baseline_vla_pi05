@@ -1,0 +1,162 @@
+{
+  "camera": "top",
+  "task": "left",
+  "piper_exit": {
+    "view_id": 1,
+    "source": "auto_body-midpoint",
+    "source_names": [
+      "piper_link7",
+      "piper_link8"
+    ],
+    "offset": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "point": [
+      -0.10142479836940765,
+      -0.11701418459415436,
+      -0.029857143759727478
+    ],
+    "frame": "scene"
+  },
+  "picks": [
+    {
+      "pixel": [
+        69,
+        70
+      ],
+      "view_id": 132,
+      "progress": 49.0,
+      "body_id": 0,
+      "geom_id": 3,
+      "geom_name": "vessel_mesh",
+      "source": "mujoco_mjv_select",
+      "point": [
+        -0.014327995479106903,
+        -0.0883810892701149,
+        -0.03181358054280281
+      ],
+      "point_semantics": "route-center",
+      "surface_point": [
+        -0.009274340234696865,
+        -0.10260441154241562,
+        0.002198487054556608
+      ],
+      "center_point": [
+        -0.014327995479106903,
+        -0.0883810892701149,
+        -0.03181358054280281
+      ],
+      "surface_to_center_distance": 0.037211060523986816,
+      "reproject_error_px": null,
+      "reproject_pixel": null,
+      "frame": "scene"
+    },
+    {
+      "pixel": [
+        313,
+        103
+      ],
+      "view_id": 274,
+      "progress": 18.48732277750969,
+      "body_id": 0,
+      "geom_id": 3,
+      "geom_name": "vessel_mesh",
+      "source": "mujoco_mjv_select",
+      "point": [
+        -0.0030159628950059414,
+        -0.20438513159751892,
+        -0.0011639604344964027
+      ],
+      "point_semantics": "route-center",
+      "surface_point": [
+        0.013792082667350769,
+        -0.19476476311683655,
+        0.010389243252575397
+      ],
+      "center_point": [
+        -0.0030159628950059414,
+        -0.20438513159751892,
+        -0.0011639604344964027
+      ],
+      "surface_to_center_distance": 0.02255079708993435,
+      "reproject_error_px": 444.4429931640625,
+      "reproject_pixel": [
+        732.5772705078125,
+        249.57586669921875
+      ],
+      "frame": "scene"
+    },
+    {
+      "pixel": [
+        270,
+        193
+      ],
+      "view_id": 274,
+      "progress": 23.36374008655548,
+      "body_id": 0,
+      "geom_id": 3,
+      "geom_name": "vessel_mesh",
+      "source": "mujoco_mjv_select",
+      "point": [
+        -0.00868724100291729,
+        -0.18662215769290924,
+        -0.01484828069806099
+      ],
+      "point_semantics": "route-center",
+      "surface_point": [
+        -0.006734156049787998,
+        -0.19947212934494019,
+        -0.02927684783935547
+      ],
+      "center_point": [
+        -0.00868724100291729,
+        -0.18662215769290924,
+        -0.01484828069806099
+      ],
+      "surface_to_center_distance": 0.019419575110077858,
+      "reproject_error_px": 476.0261535644531,
+      "reproject_pixel": [
+        735.6227416992188,
+        291.9765319824219
+      ],
+      "frame": "scene"
+    },
+    {
+      "pixel": [
+        206,
+        204
+      ],
+      "view_id": 280,
+      "progress": 35.19277103245258,
+      "body_id": 0,
+      "geom_id": 3,
+      "geom_name": "vessel_mesh",
+      "source": "mujoco_mjv_select",
+      "point": [
+        -0.017812808975577354,
+        -0.14307117462158203,
+        -0.04102622717618942
+      ],
+      "point_semantics": "route-center",
+      "surface_point": [
+        -0.013270415365695953,
+        -0.14692431688308716,
+        -0.056993626058101654
+      ],
+      "center_point": [
+        -0.017812808975577354,
+        -0.14307117462158203,
+        -0.04102622717618942
+      ],
+      "surface_to_center_distance": 0.017042238265275955,
+      "reproject_error_px": 599.5310668945312,
+      "reproject_pixel": [
+        796.216552734375,
+        309.2705993652344
+      ],
+      "frame": "scene"
+    }
+  ]
+}

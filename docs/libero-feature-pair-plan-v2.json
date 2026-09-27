@@ -1,0 +1,43 @@
+{
+  "schema": "pi05_libero_feature_pair_plan_v2",
+  "scope": "single_task_complete_episode_pipeline_diagnostic_only",
+  "source_repo_id": "lerobot/libero",
+  "source_revision": "a1aaacb7f6cd6ee5fb43120f673cebb0cfea7dd4",
+  "prior_source_report_sha256": "0d431859588a2f14758fbf1c27b17e1ec6114f161c14f5cc246ae2e55317c4e5",
+  "selected_task_id": 9,
+  "source_task_index": 39,
+  "episodes": [
+    {"episode_index": 1400, "record_count": 140, "partition": "train"},
+    {"episode_index": 1402, "record_count": 173, "partition": "validation"}
+  ],
+  "selection_basis": "reuse audited episode1400; take the next source episode with task_index39 in already cached Parquet330 after IDs/task_index/frame_index-only scan; freeze before viewing episode1402 actions/images or extracting features; no reward/quality selection",
+  "supersedes_plan_sha256": "bc5b7e49b1d36878fe3ee1892b82faff1e6967a1bc307451756414d5a5696823",
+  "correction": "v1 incorrectly inferred same task from adjacent episode IDs; actual episode1401 is source task34, so native schema gate rejected it before feature extraction. v1 plan and failed artifact are preserved. No duplicate gate was bypassed.",
+  "metadata_only_candidate_inventory": [
+    {"episode_index": 1399, "task_index": 37, "record_count": 145},
+    {"episode_index": 1400, "task_index": 39, "record_count": 140},
+    {"episode_index": 1401, "task_index": 34, "record_count": 89},
+    {"episode_index": 1402, "task_index": 39, "record_count": 173},
+    {"episode_index": 1403, "task_index": 36, "record_count": 137},
+    {"episode_index": 1404, "task_index": 32, "record_count": 91}
+  ],
+  "context_len": 4,
+  "horizon": 3,
+  "fps": 10.0,
+  "orientation": "stored_dataset_rgb_no_extra_flip",
+  "max_records": 400,
+  "duplicate_guard": {
+    "window_length": 7,
+    "state_quantization": 0.0001,
+    "action_quantization": 0.001,
+    "reject_cross_split_matching_state_action_window": true,
+    "reject_cross_split_matching_two_view_pixel_window": true
+  },
+  "split_scope": "disjoint_source_episode_ids_for_pipeline_diagnostic_not_verified_independent_family",
+  "family_independence_verified": false,
+  "checkpoint_training_overlap_unknown": true,
+  "policy_generalization_evaluation_allowed": false,
+  "training_ready": false,
+  "training_authorized": false,
+  "full_suite_coverage": false
+}

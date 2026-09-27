@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Real10 · 可见头段粗标</title>
+<style>
+:root{color-scheme:light;--ink:#183746;--muted:#526e7b;--teal:#087e83;--line:#cbdade}*{box-sizing:border-box}body{margin:0;background:#f1f5f6;color:var(--ink);font:15px/1.6 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1640px;margin:24px auto;padding:0 22px 40px}h1{font-size:27px;margin:0}h2{font-size:19px;margin:0}p{margin:8px 0}header{display:flex;justify-content:space-between;gap:16px;align-items:center}.badge{border:1px solid var(--line);border-radius:20px;padding:4px 12px;background:white;color:var(--muted)}.intro{border-left:4px solid var(--teal);padding:8px 16px;margin:16px 0;background:white}.bar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:10px 0}button,input,select,textarea{font:inherit}button,select,input{border:1px solid var(--line);border-radius:6px;padding:6px 10px;background:white;color:var(--ink)}button{cursor:pointer}button:hover{border-color:var(--teal)}button:disabled,select:disabled{opacity:.5;cursor:default}.primary,.active{background:var(--teal);color:white}.views{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{min-width:0;background:white;border:1px solid var(--line);border-radius:10px;padding:14px}.viewport{overflow:auto;max-height:520px;background:#202e33;border-radius:5px}.viewport canvas{display:block;touch-action:none;cursor:crosshair}.time,.muted{font-size:13px;color:var(--muted)}.frame-note{width:100%;margin-top:9px}.old{font-size:13px;color:var(--muted);min-height:24px}.footer{background:white;border:1px solid var(--line);border-radius:10px;padding:15px;margin-top:16px}textarea{display:block;width:100%;border:1px solid var(--line);border-radius:5px;padding:8px;min-height:55px}.message{min-height:26px;color:var(--teal)}.error{color:#b33434}.changed{color:#a55d00}.fixture{background:#fff0be;color:#754b00;padding:10px;margin:12px 0;font-weight:600}a{color:var(--teal)}details{margin:12px 0}summary{cursor:pointer}#progress{margin-left:auto}.coverage{display:flex;gap:8px;align-items:center}.coverage select{flex:1}.help{font-size:13px;color:var(--muted);min-height:42px}[hidden]{display:none!important}@media(max-width:1000px){.views{grid-template-columns:1fr}header{display:block}#progress{margin-left:0}}
+</style>
+<main>
+<header><div><h1>可见头段粗标</h1><span class="muted">Real10 · 原六窗 · Side / Top 首、中、末，共 36 帧位</span></div><span class="badge">独立标注 · 不改旧标签 · 不训练</span></header>
+<div id="fixture" class="fixture" hidden>仅 UI 测试副本：本页所有绘制都是测试数据，不是真实人工标签。</div>
+<div class="intro">只标<strong>当前帧能辨认的红色头段</strong>：粗框或短折线均可；遮挡部分不猜补。约 25 mm 不是像素标尺。Side / Top 独立判断，未标不等于不可见。</div>
+<details><summary>怎么标？展开简短说明</summary><p>先看图，再选择粗框或短折线。框选可见头段的大致范围，不必精确贴边；弯曲或分段可见时用短折线，遮挡处用“另起一段”，不要连过去。折线无方向，两个端点不自动当作尖端或同一材料点。</p><p>“完整可辨”指你能辨认整段红色头段；“仅部分可辨”只画可见部分；能画出可靠部分、但不确定是否完整时选“完整性不确定”。若连可靠部分也无法定位，选择“可见但无法可靠圈定”或“不可见 / 无可靠头段”，不要猜。不同帧可用不同方式。</p><p>切换首 / 中 / 末会保留本窗草稿；保存后再换窗口。允许保存未标帧。旧尖端 / 材料点仅供可选只读参考，窗口响应不在这里重标，头段移动不自动等于推进。</p></details>
+<div class="bar"><button id="prev-case">上一窗口</button><select id="case-picker" aria-label="窗口"></select><button id="next-case">下一窗口</button><span id="progress"></span></div>
+<div class="bar"><button id="anchor">首帧</button><button id="middle">中帧</button><button id="end">末帧</button><span id="frame-state"></span><span id="dirty" class="changed"></span></div>
+<div class="views" id="views"></div>
+<details><summary>既有窗口响应（只读）</summary><p id="old-response"></p></details>
+<div class="footer"><label>本窗口补充说明<textarea id="notes" placeholder="可选：例如头段和轴身的交界不明确；不在此重标推进类别"></textarea></label><div class="bar"><label>标注人 <input id="reviewer" placeholder="姓名或缩写" type="text"></label><button id="save" class="primary">保存本窗口</button><button id="save-next">保存并到下一窗口</button></div><div id="message" class="message" role="status"></div></div>
+</main>
+<script>
+const schema='real10_head_segment_annotation_v1', views=['side','top'], $=id=>document.getElementById(id);
+const statusNames={unreviewed:'未标',visible:'已圈定可见部分',ambiguous:'可见但无法可靠圈定',not_visible:'不可见 / 无可靠头段'};
+let catalog,caseIndex=0,caseData,annotation,frame=0,dirty=false,saving=false,loadToken=0;
+const ui={},images={},loaded={};
+function say(text,error=false){$('message').textContent=text;$('message').className='message'+(error?' error':'');}
+async function api(url,options){const r=await fetch(url,options),j=await r.json();if(!r.ok)throw Error(j.error||r.status);return j;}
+function current(v){return annotation.views[v].frames[String(frame)];}
+function changed(){dirty=true;$('dirty').textContent='本窗有未保存修改';}
+function drawing(){return views.some(v=>ui[v].draft.length||ui[v].drag);}
+function blockDrawing(){if(drawing()){say('请先完成或取消正在绘制的框 / 线段。',true);return true;}return false;}
+function editable(v){return loaded[v]&&!saving;}
+function roi(v){return ui[v].crop.value==='roi'?catalog.manifest.display_roi_xyxy[v]:[0,0,1920,1080];}
+function updateSave(){for(const id of ['save','save-next'])$(id).disabled=saving||!views.every(v=>loaded[v]);$('save-next').disabled||=caseIndex===5;for(const id of ['notes','reviewer','case-picker','anchor','middle','end'])$(id).disabled=saving;$('prev-case').disabled=saving||caseIndex===0;$('next-case').disabled=saving||caseIndex===5;}
+function updateProgress(){const s=catalog.summary;$('progress').textContent=`已保存审阅 ${s.reviewed}/36 · 已圈定 ${s.status_counts.visible||0} · 历史保存 ${s.saved_revisions}`;catalog.manifest.cases.forEach((c,i)=>{$('case-picker').options[i].textContent=`#${c.ui_index} · ${c.task==='left'?'左':'右'}任务 · ${catalog.progress[c.id].reviewed}/6 已看`;});}
+function controls(v){
+ const f=current(v),u=ui[v];u.status.value=f.status;u.coverage.value=f.coverage||'';u.note.value=f.notes;
+ for(const el of [u.status,u.coverage,u.note,...u.editButtons])el.disabled=!editable(v);
+ u.finish.disabled=!editable(v)||u.draft.length<2;u.undo.disabled=!editable(v)||!u.draft.length;u.cancel.disabled=!editable(v)||!u.draft.length;
+ u.add.disabled=!editable(v)||f.geometry?.kind!=='polyline'||!!u.draft.length;
+ u.modeButtons.forEach(b=>b.classList.toggle('active',b.dataset.mode===u.mode));
+ const g=f.geometry;$(v+'-geometry').textContent=g?.kind==='bbox'?`粗框：${g.xyxy.map(x=>x.toFixed(1)).join(', ')}`:g?.kind==='polyline'?`短折线：${g.segments.length} 段 / ${g.segments.reduce((n,s)=>n+s.length,0)} 点`:'尚无头段几何标注';
+ const old=caseData.read_only_points.views[v],p=old.frames[String(frame)].wire;
+ $(v+'-old').textContent=`旧记录（只读）：${old.feature_type==='tip'?'尖端':old.feature_type==='distinct_shaft_landmark'?'材料点':'无可靠特征'} · ${p.status} · ${p.xy?p.xy.join(', '):'null'}`;
+}
+function point(v,e){const b=ui[v].canvas.getBoundingClientRect(),r=roi(v);return [Math.max(0,Math.min(1919,r[0]+(e.clientX-b.left)*ui[v].canvas.width/b.width)),Math.max(0,Math.min(1079,r[1]+(e.clientY-b.top)*ui[v].canvas.height/b.height))].map(x=>Math.round(x*10)/10);}
+function draw(v){
+ if(!loaded[v])return;const u=ui[v],canvas=u.canvas,c=canvas.getContext('2d'),r=roi(v),w=r[2]-r[0],h=r[3]-r[1];
+ canvas.width=w;canvas.height=h;canvas.style.width=u.zoom.value==='fit'?'100%':(w*Number(u.zoom.value))+'px';canvas.style.height='auto';c.drawImage(images[v],...r.slice(0,2),w,h,0,0,w,h);
+ c.lineWidth=3;c.strokeStyle='#23ead9';c.fillStyle='#23ead9';
+ function line(points,draft=false){c.setLineDash(draft?[9,6]:[]);c.beginPath();points.forEach((p,i)=>c[i?'lineTo':'moveTo'](p[0]-r[0],p[1]-r[1]));c.stroke();c.setLineDash([]);for(const p of points){c.beginPath();c.arc(p[0]-r[0],p[1]-r[1],4,0,Math.PI*2);c.fill();}}
+ const g=current(v).geometry;if(g?.kind==='bbox'){const b=g.xyxy;c.strokeRect(b[0]-r[0],b[1]-r[1],b[2]-b[0],b[3]-b[1]);}if(g?.kind==='polyline')g.segments.forEach(s=>line(s));
+ if(u.drag){c.setLineDash([9,6]);c.strokeRect(u.drag[0][0]-r[0],u.drag[0][1]-r[1],u.drag[1][0]-u.drag[0][0],u.drag[1][1]-u.drag[0][1]);c.setLineDash([]);}if(u.draft.length)line(u.draft,true);
+ if(u.old.checked){const p=caseData.read_only_points.views[v].frames[String(frame)].wire;if(p.xy){const [x,y]=[p.xy[0]-r[0],p.xy[1]-r[1]];c.strokeStyle='#ffcc55';c.beginPath();c.arc(x,y,9,0,Math.PI*2);c.moveTo(x-14,y);c.lineTo(x+14,y);c.moveTo(x,y-14);c.lineTo(x,y+14);c.stroke();}}
+}
+function setGeometry(v,g){const f=current(v);f.status='visible';f.geometry=g;f.coverage=ui[v].coverage.value||null;changed();controls(v);draw(v);say(f.coverage?'已记录几何草稿，记得保存本窗口。':'已记录几何草稿；请再选择该帧的头段完整性。');}
+function buildView(v){
+ const section=document.createElement('section');section.className='card';section.innerHTML=`<h2>${v==='side'?'Side · 侧视':'Top · 俯视'} <span id="${v}-time" class="time"></span></h2>
+ <div class="bar"><label>显示 <select id="${v}-crop" aria-label="${v}显示"><option value="roi">血管局部</option><option value="full">全图</option></select></label><label>缩放 <select id="${v}-zoom" aria-label="${v}缩放"><option value="fit">适合宽度</option><option value="1">1:1 原图</option><option value="2">2倍</option></select></label><a id="${v}-raw" target="_blank" rel="noopener">打开原图</a></div>
+ <div class="bar"><button id="${v}-box" data-mode="bbox">粗框</button><button id="${v}-line" data-mode="polyline">短折线</button><button id="${v}-finish">完成线段</button><button id="${v}-undo">撤销点</button><button id="${v}-cancel">取消草稿线</button><button id="${v}-add">另起一段</button></div>
+ <div class="viewport"><canvas id="${v}-canvas" aria-label="${v}头段画布"></canvas></div>
+ <div class="help" id="${v}-hint"></div><div class="bar"><select id="${v}-status" aria-label="${v}头段状态"></select><button id="${v}-clear">清空本帧</button></div>
+ <label class="coverage">头段完整性 <select id="${v}-coverage" aria-label="${v}头段完整性"><option value="">画出后请选择</option><option value="complete">完整可辨</option><option value="partial">仅部分可辨</option><option value="uncertain">完整性不确定</option></select></label>
+ <input class="frame-note" id="${v}-note" aria-label="${v}当前帧说明" placeholder="本帧说明（可选）：例如中间被遮挡，只画两端可见部分">
+ <div id="${v}-geometry" class="muted"></div><label class="muted"><input type="checkbox" id="${v}-old-toggle">叠加旧点（黄色，只读）</label><div id="${v}-old" class="old"></div>`;
+ $('views').append(section);
+ const u=ui[v]={mode:'bbox',draft:[],drag:null,append:false,canvas:$(v+'-canvas'),crop:$(v+'-crop'),zoom:$(v+'-zoom'),status:$(v+'-status'),coverage:$(v+'-coverage'),note:$(v+'-note'),old:$(v+'-old-toggle'),finish:$(v+'-finish'),undo:$(v+'-undo'),cancel:$(v+'-cancel'),add:$(v+'-add'),modeButtons:[$(v+'-box'),$(v+'-line')]};
+ u.editButtons=[...u.modeButtons,u.finish,u.undo,u.cancel,u.add,$(v+'-clear')];
+ for(const [value,name] of Object.entries(statusNames))u.status.add(new Option(name,value));
+ function hint(){$(v+'-hint').textContent=u.mode==='bbox'?'拖动框出可见头段的大致范围；重画会替换本帧几何。断续可见时建议用短折线。':u.append?'点击描绘另一段可见部分，再点“完成线段”；不会跨遮挡连接。':'沿可见头段点击 2 个以上点，再点“完成线段”；重新绘制会替换本帧几何。';}
+ u.modeButtons.forEach(b=>b.onclick=()=>{if(!editable(v)||u.draft.length){say('请先完成或取消草稿线。',true);return;}u.mode=b.dataset.mode;u.append=false;hint();controls(v);});
+ u.status.onchange=()=>{if(!editable(v))return;const s=u.status.value,f=current(v);if(s==='visible'&&!f.geometry){controls(v);say('请先画粗框或短折线。',true);return;}if(u.draft.length){controls(v);say('请先完成或取消草稿线。',true);return;}f.status=s;if(s!=='visible'){f.geometry=null;f.coverage=null;}changed();controls(v);draw(v);};
+ u.coverage.onchange=()=>{const f=current(v);if(!f.geometry){controls(v);say('请先圈定可见部分；无法定位时直接选对应状态。',true);return;}f.coverage=u.coverage.value||null;changed();};
+ u.note.oninput=()=>{current(v).notes=u.note.value;changed();};
+ $(v+'-clear').onclick=()=>{u.draft=[];u.drag=null;u.append=false;Object.assign(current(v),{status:'unreviewed',coverage:null,geometry:null});changed();controls(v);draw(v);hint();};
+ u.finish.onclick=()=>{if(u.draft.length<2)return;const old=current(v).geometry,segments=u.append&&old?.kind==='polyline'?structuredClone(old.segments):[];segments.push(u.draft);u.draft=[];u.append=false;setGeometry(v,{kind:'polyline',segments});hint();};
+ u.undo.onclick=()=>{u.draft.pop();controls(v);draw(v);};u.cancel.onclick=()=>{u.draft=[];u.append=false;controls(v);draw(v);hint();};
+ u.add.onclick=()=>{u.mode='polyline';u.append=true;hint();controls(v);};
+ for(const el of [u.crop,u.zoom])el.onchange=()=>{if(u.draft.length||u.drag){say('视图已调整，草稿坐标仍为原图像素。');}draw(v);};u.old.onchange=()=>draw(v);
+ u.canvas.onpointerdown=e=>{if(!editable(v)||e.button!==0)return;e.preventDefault();if(u.mode==='polyline'){u.draft.push(point(v,e));controls(v);draw(v);return;}u.drag=[point(v,e),point(v,e)];u.canvas.setPointerCapture(e.pointerId);draw(v);};
+ u.canvas.onpointermove=e=>{if(u.drag){u.drag[1]=point(v,e);draw(v);}};
+ u.canvas.onpointerup=e=>{if(!u.drag)return;const [a,b]=[u.drag[0],point(v,e)];u.drag=null;if(u.canvas.hasPointerCapture(e.pointerId))u.canvas.releasePointerCapture(e.pointerId);const xyxy=[Math.min(a[0],b[0]),Math.min(a[1],b[1]),Math.max(a[0],b[0]),Math.max(a[1],b[1])];if(xyxy[2]-xyxy[0]<1||xyxy[3]-xyxy[1]<1){draw(v);return;}setGeometry(v,{kind:'bbox',xyxy});};
+ u.canvas.onpointercancel=()=>{u.drag=null;draw(v);};hint();
+}
+async function render(){
+ const token=++loadToken,k=caseData.keyframe_indices.indexOf(frame);$('frame-state').textContent=`${'首中末'[k]}帧 · 序列 ${frame+1}/${caseData.frames.side.length}`;
+ ['anchor','middle','end'].forEach((id,i)=>$(id).classList.toggle('active',i===k));
+ for(const v of views){loaded[v]=false;controls(v);ui[v].canvas.getContext('2d').clearRect(0,0,ui[v].canvas.width,ui[v].canvas.height);}updateSave();
+ await Promise.all(views.map(v=>new Promise(resolve=>{const ref=caseData.frames[v][frame],url=`/image?case=${encodeURIComponent(caseData.id)}&view=${v}&frame=${frame}`;$(v+'-raw').href=url;$(v+'-time').textContent=`${ref.path.split('/').pop()} · +${(ref.time_s-caseData.frames[v][0].time_s).toFixed(3)}s`;const image=new Image();image.onload=()=>{if(token===loadToken){if(image.naturalWidth!==1920||image.naturalHeight!==1080){say('原图尺寸不符，不能标注。',true);}else{images[v]=image;loaded[v]=true;draw(v);controls(v);}}resolve();};image.onerror=()=>{if(token===loadToken)say(v+' 原图读取失败；未启用当前图标注。',true);resolve();};image.src=url;})));
+ if(token===loadToken)updateSave();
+}
+async function choose(i){
+ if(saving||dirty||drawing()){say('请先保存本窗口；正在绘制的线段需先完成或取消。',true);$('case-picker').value=caseIndex;return;}
+ caseIndex=Math.max(0,Math.min(5,i));caseData=catalog.manifest.cases[caseIndex];annotation=structuredClone(catalog.annotations[caseData.id]);frame=caseData.keyframe_indices[0];$('case-picker').value=caseIndex;$('notes').value=annotation.notes;if(annotation.reviewer)$('reviewer').value=annotation.reviewer;
+ for(const v of views){ui[v].append=false;ui[v].draft=[];}
+ const h=caseData.read_only_response;$('old-response').textContent=`${h.joint_motion_response==='advance'?'推进':h.joint_motion_response==='stationary'?'无推进':h.joint_motion_response}；${h.notes||caseData.human_notes||''}`;
+ $('prev-case').disabled=caseIndex===0;$('next-case').disabled=caseIndex===5;$('dirty').textContent='';say('');await render();
+}
+async function gotoFrame(k){if(saving||blockDrawing())return;frame=caseData.keyframe_indices[k];for(const v of views)ui[v].append=false;await render();}
+async function save(next=false){
+ if(saving||blockDrawing())return;
+ for(const v of views)for(const [i,f] of Object.entries(annotation.views[v].frames))if(f.geometry&&!f.coverage){say(`${v} 第 ${Number(i)+1} 帧尚未选择头段完整性。`,true);return;}
+ saving=true;updateSave();for(const v of views)controls(v);
+ try{annotation.reviewer=$('reviewer').value;annotation.notes=$('notes').value;const r=await api('/api/annotation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(annotation)});annotation=r.annotation;catalog.annotations[caseData.id]=structuredClone(annotation);catalog.summary=r.summary;catalog.progress[caseData.id]=r.progress;dirty=false;$('dirty').textContent='';updateProgress();say(`已保存本窗口 revision ${annotation.revision}；只追加 head_annotations.jsonl，旧标签未改。`);}catch(e){say(e.message,true);next=false;}finally{saving=false;updateSave();for(const v of views)controls(v);}if(next)await choose(caseIndex+1);
+}
+for(const v of views)buildView(v);
+$('case-picker').onchange=()=>choose(Number($('case-picker').value)).catch(e=>say(e.message,true));$('prev-case').onclick=()=>choose(caseIndex-1);$('next-case').onclick=()=>choose(caseIndex+1);
+['anchor','middle','end'].forEach((id,k)=>$(id).onclick=()=>gotoFrame(k).catch(e=>say(e.message,true)));
+$('save').onclick=()=>save();$('save-next').onclick=()=>save(true);$('notes').oninput=()=>{annotation.notes=$('notes').value;changed();};$('reviewer').oninput=changed;
+window.addEventListener('beforeunload',e=>{if(dirty||drawing()){e.preventDefault();e.returnValue='';}});
+window.addEventListener('resize',()=>{if(caseData)for(const v of views)draw(v);});
+(async()=>{catalog=await api('/api/index');if(catalog.schema!==schema)throw Error('服务/页面版本不匹配');$('fixture').hidden=!catalog.manifest.is_ui_fixture;catalog.manifest.cases.forEach((c,i)=>$('case-picker').add(new Option('#'+c.ui_index,i)));updateProgress();await choose(0);})().catch(e=>say(e.message,true));
+</script>
+</html>

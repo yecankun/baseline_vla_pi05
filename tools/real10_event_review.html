@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Real10 · 联合运动响应标注 v2</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f6f9;color:#172b3a;font:15px/1.55 "Microsoft YaHei",system-ui,sans-serif}header{padding:18px 24px;background:#173547;color:white}h1{margin:0;font-size:22px}header p{margin:4px 0 0;color:#d7e5ee}main{max-width:1600px;margin:auto;padding:18px 24px}.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}button,select,input,textarea{font:inherit;border:1px solid #c2ced5;border-radius:6px;padding:7px 10px;background:white;color:#173547}button{cursor:pointer}button:disabled{opacity:.45;cursor:default}.primary{background:#12648a;color:white;border:0}#picker{flex:1;min-width:260px}#status{margin-left:auto}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:white;border:1px solid #dae2e7;border-radius:10px;overflow:hidden}.title{padding:8px 12px;font-weight:600;display:flex;justify-content:space-between}.canvas{background:#10202b;min-height:120px;position:relative}.canvas img{display:block;width:100%;height:auto;max-height:47vh;object-fit:contain;cursor:zoom-in}.canvas a{display:block}.labels{padding:12px;display:flex;gap:12px;flex-wrap:wrap}.labels label{flex:1;min-width:190px}.labels select{display:block;width:100%;margin-top:4px}.timeline{background:white;border:1px solid #dae2e7;padding:12px;border-radius:8px;margin:14px 0}#slider{width:100%;padding:0}#phase{font-weight:bold;color:#12648a}.future{color:#ad6012!important}.note{font-size:13px;color:#586e7a}.notice{padding:10px 14px;background:#fff3d9;border-left:4px solid #d99d32;margin-bottom:14px}#meta{white-space:pre-wrap;font:13px/1.55 "Microsoft YaHei",sans-serif;max-height:230px;overflow:auto}details{margin:10px 0}textarea{width:100%;min-height:65px}#message{min-height:24px;color:#136b53}.error{color:#b33232!important}@media(max-width:850px){.grid{grid-template-columns:1fr}.canvas img{max-height:none}main{padding:12px}header{padding:14px}}
+</style>
+<header><h1>Real10 · 联合运动响应标注 v2</h1><p>两路可见性分别标，一份运动响应联合判断。仅回放已有图像，不连接相机、机械臂或模型。</p></header>
+<main>
+<div class="notice">标注的是可见性和视觉运动响应，不是真实碰壁或接触力。未标注 ≠ 无法判断；异步任务完成 ≠ 导丝发生物理位移。</div>
+<p class="note">画面模糊但尖端位置能可靠辨认，仍可选“可可靠辨认”。可见性只看各自锚点帧；运动响应综合两路锚点及之后的画面，只填一次。Top不可见但Side能确认推进，可标“推进＋依据Side”；两路都无法判断时才选“无法判断”。不根据feed日志猜测，也不把历史帧的运动算入后续响应。</p>
+<div class="bar"><button id="prev">上一窗口</button><select id="picker" aria-label="事件窗口"></select><button id="next">下一窗口</button><button id="next-evidence">下一个待补依据</button></div>
+<div id="status" class="note"></div>
+<div class="bar"><button id="anchor">回到锚点</button><button id="play">播放窗口</button><span id="phase"></span><span id="clock" class="note"></span></div>
+<section class="card"><div class="labels"><label>联合运动响应（只填一次）<select id="joint-motion"></select></label><label>运动判断依据<select id="motion-evidence"></select></label></div><div id="migration-note" class="note" style="padding:0 12px 10px"></div></section>
+<div class="grid">
+ <section class="card"><div class="title"><span>Side 原始视角</span><span class="note">点击图像查看原尺寸</span></div><div class="canvas"><a id="side-link" target="_blank" rel="noopener"><img id="side-image" alt="Side图像"></a></div><div class="labels"><label>Side锚点尖端可见性<select id="side-visibility"></select></label></div></section>
+ <section class="card"><div class="title"><span>Top 原始视角</span><span class="note">点击图像查看原尺寸</span></div><div class="canvas"><a id="top-link" target="_blank" rel="noopener"><img id="top-image" alt="Top图像"></a></div><div class="labels"><label>Top锚点尖端可见性<select id="top-visibility"></select></label></div></section>
+</div>
+<div class="timeline"><input id="slider" type="range" min="0" value="0" aria-label="窗口内帧"><div class="note">蓝色：历史／锚点；橙色：未来响应（仅离线目标）。可见性只按锚点判断；运动响应按锚点与后续图像判断。原始时间间隔保留，画面不是恒定15 FPS。</div></div>
+<div id="summary" class="note"></div>
+<details><summary>时间对齐、历史状态与命令日志（仅审查）</summary><pre id="meta"></pre></details>
+<label>备注（例如遮挡、双视角矛盾、期间又有新递丝请求）<textarea id="notes"></textarea></label>
+<div class="bar"><label>标注人 <input id="reviewer" placeholder="姓名或缩写" maxlength="120"></label><button id="save" class="primary">保存标注</button><span class="note">新修订只追加到annotations_joint_v2.jsonl；原annotations.jsonl不改，可关闭后续标。</span></div>
+<div id="message" role="status"></div>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const views = ['side','top'];
+const annotationSchema='real10_joint_response_annotation_v2';
+const visibility = [['','未标注'],['clear','可可靠辨认（画面可以模糊）'],['ambiguous','尖端位置不确定'],['unobservable','尖端不可见']];
+const motion = [['','未标注'],['advance','沿管推进'],['stationary','无明显推进'],['retract','回退'],['uncertain','无法判断']];
+const evidence = [['','待补选判断依据'],['side','Side提供判断依据'],['top','Top提供判断依据'],['both','Side＋Top共同提供依据'],['insufficient','两路证据不足，无法判断']];
+const statusNames={reviewed:'完整',needs_evidence:'待补依据',partial:'部分标注',unreviewed:'未标注'};
+let catalog, data, index=0, frame=0, dirty=false, playing=false, timer;
+let renderVersion=0, loadedViews=new Set();
+for (const [id,options] of [['side-visibility',visibility],['top-visibility',visibility],['joint-motion',motion],['motion-evidence',evidence]]) {
+ const select=$(id);
+ for(const [value,label] of options) select.add(new Option(label,value));
+ select.onchange=()=>{dirty=true;};
+}
+$('notes').oninput=()=>{dirty=true;};
+$('reviewer').oninput=()=>{dirty=true;};
+function say(text,error=false){$('message').textContent=text;$('message').className=error?'error':'';}
+async function api(path, options){const res=await fetch(path,options);const obj=await res.json();if(!res.ok)throw Error(obj.error||res.status);return obj;}
+function stop(){playing=false;clearTimeout(timer);$('play').textContent='播放窗口';}
+function canLeave(){return !dirty||confirm('本窗口有未保存的修改，仍要离开吗？');}
+async function choose(i){
+ if(data&&!canLeave()){$('picker').value=index;return;}
+ stop(); index=Math.max(0,Math.min(catalog.windows.length-1,i));$('picker').value=index;
+ data=await api('/api/window?id='+encodeURIComponent(catalog.windows[index].window_id));
+ const ann=data.annotation;
+ for(const v of views)$(v+'-visibility').value=ann.anchor_visibility[v]||'';
+ $('joint-motion').value=ann.joint_motion_response||'';$('motion-evidence').value=ann.motion_evidence||'';
+ $('migration-note').textContent=ann.annotation_source==='legacy_projection'&&ann.legacy_migration
+  ?ann.legacy_migration.result==='agreed'?'旧版一致的运动结论及两路可见性已保留；请补选实际判断依据，不会自动猜测。':'旧版两路响应不一致或未填全，未自动选定联合响应；请结合画面确认。'
+  :'运动依据看后续时序证据，不等同于锚点可见性。单路遮挡不迫使联合响应变为无法判断。';
+ $('notes').value=ann.notes||''; if(ann.reviewer)$('reviewer').value=ann.reviewer;
+ frame=data.frames.findIndex(f=>f.frame_id===data.window.anchor_frame_id);
+ $('slider').max=data.frames.length-1;dirty=false;say('');render();
+ $('prev').disabled=index===0;$('next').disabled=index===catalog.windows.length-1;
+ const t=data.target_audit_only;
+ $('summary').textContent='本窗口：历史 '+data.window.history_frame_ids.length+' 帧，未来 '+t.future_frame_ids.length+' 帧；后续另有 '+t.subsequent_request_frame_ids.length+' 个递丝请求。'+(t.future_boundary_truncated?' 未来窗口在episode末端截断。':'')+' 所有窗口继承原train归属，不是独立测试集。';
+ updateStatus();
+}
+function windowLabel(w,i){return (i+1)+' · '+w.task+' · '+w.window_id.split('/').pop()+' · '+statusNames[w.status]+' · '+w.source_episode.split('_').pop();}
+function updateStatus(){
+ const n=catalog.windows.filter(w=>w.status==='reviewed').length;
+ const pending=catalog.windows.filter(w=>w.status==='needs_evidence').length;
+ $('status').textContent='旧标注保留 '+catalog.summary.legacy_windows+' 窗口 | v2完整 '+n+' / '+catalog.windows.length+' | 待补判断依据 '+pending;
+ $('next-evidence').disabled=pending===0;
+ for(let i=0;i<catalog.windows.length;i++)$('picker').options[i].textContent=windowLabel(catalog.windows[i],i);
+}
+function render(){
+ const f=data.frames[frame], w=data.window, delta=f.observation_available_at_s-w.anchor_timestamp_s;
+ const isAnchor=f.frame_id===w.anchor_frame_id;
+ $('slider').value=frame;$('phase').textContent=isAnchor?'锚点（可见性标注帧）':delta>0?'未来响应 · 仅目标':'历史观测';
+ $('phase').className=delta>0?'future':'';
+ $('clock').textContent='step '+f.step+' | 相对锚点 '+delta.toFixed(3)+' s | '+(frame+1)+' / '+data.frames.length;
+ loadedViews=new Set(); const version=++renderVersion; $('save').disabled=true;
+ for(const v of views){
+  const url='/image?id='+encodeURIComponent(f.frame_id)+'&view='+v;
+  const img=$(v+'-image');
+  img.onload=()=>{if(version!==renderVersion)return;loadedViews.add(v);$('save').disabled=loadedViews.size!==2;$(v+'-visibility').disabled=!isAnchor;};
+  img.onerror=()=>{if(version===renderVersion){stop();say('无法读取 '+v+' 原始图像，请检查 --source-root。',true);}};
+  $(v+'-visibility').disabled=true;img.src=url;$(v+'-link').href=url;
+ }
+ const ts=f.images;
+ const log=data.execution_logs_audit_only[frame];
+ $('meta').textContent=JSON.stringify({source_episode:w.source_episode,source_split:w.source_split,
+  review_selection:w.review_selection_reason,side_top_skew_ms:1000*Math.abs(ts.side.recorded_timestamp_s-ts.top.recorded_timestamp_s),
+  elite_pose:f.elite,controller_history:f.controller_history,
+  current_post_submit_log_NOT_model_input:log,
+  matched_completion_TARGET_ONLY:data.target_audit_only.matched_executor_completion},null,2);
+}
+async function save(){
+ stop();
+ const payload={annotation_schema:annotationSchema,window_id:data.window.window_id,reviewer:$('reviewer').value,
+  anchor_visibility:{},joint_motion_response:$('joint-motion').value||null,motion_evidence:$('motion-evidence').value||null,notes:$('notes').value};
+ for(const v of views)payload.anchor_visibility[v]=$(v+'-visibility').value||null;
+ try{const saved=await api('/api/annotation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  data.annotation=saved;catalog.windows[index].status=saved.status;dirty=false;updateStatus();say('已保存：'+statusNames[saved.status]+'。原标注不改，未知不转成负样本。');
+ }catch(e){say(e.message,true);}
+}
+$('save').onclick=save;
+$('prev').onclick=()=>choose(index-1).catch(e=>say(e.message,true));
+$('next').onclick=()=>choose(index+1).catch(e=>say(e.message,true));
+$('next-evidence').onclick=()=>{for(let offset=1;offset<=catalog.windows.length;offset++){const i=(index+offset)%catalog.windows.length;if(catalog.windows[i].status==='needs_evidence'){choose(i).catch(e=>say(e.message,true));return;}}};
+$('picker').onchange=()=>choose(Number($('picker').value)).catch(e=>say(e.message,true));
+$('slider').oninput=()=>{stop();frame=Number($('slider').value);render();};
+$('anchor').onclick=()=>{stop();frame=data.frames.findIndex(f=>f.frame_id===data.window.anchor_frame_id);render();};
+$('play').onclick=()=>{
+ if(playing){stop();return;}
+ playing=true;$('play').textContent='暂停';frame=0;render();
+ function tick(){if(!playing)return;if(frame===data.frames.length-1){stop();return;}
+  const delay=Math.max(80,Math.min(1500,1000*(data.frames[frame+1].observation_available_at_s-data.frames[frame].observation_available_at_s)));
+  timer=setTimeout(()=>{if(!playing)return;frame++;render();tick();},delay);
+ }tick();
+};
+window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
+(async()=>{catalog=await api('/api/index');if(catalog.annotation_schema!==annotationSchema)throw Error('后端仍是旧版，请打开 http://127.0.0.1:8792 或重启新版review_real10_event_windows.py；不要在旧版页面继续标注。');catalog.windows.forEach((w,i)=>$('picker').add(new Option(windowLabel(w,i),i)));
+ if(!catalog.windows.length)throw Error('没有可标注窗口');await choose(0);
+})().catch(e=>say(e.message,true));
+</script>
+</html>

@@ -1,0 +1,178 @@
+{
+  "schema": "pusht_dataset_source_v1",
+  "repo_id": "lerobot/pusht",
+  "repo_type": "dataset",
+  "revision": "7628202a2180972f291ba1bc6723834921e72c19",
+  "metadata_audit_date": "2026-09-13",
+  "source_urls": {
+    "repository_metadata": "https://huggingface.co/api/datasets/lerobot/pusht",
+    "refs": "https://huggingface.co/api/datasets/lerobot/pusht/refs",
+    "pinned_tree": "https://huggingface.co/api/datasets/lerobot/pusht/tree/7628202a2180972f291ba1bc6723834921e72c19?recursive=true&expand=false",
+    "pinned_browser_tree": "https://huggingface.co/datasets/lerobot/pusht/tree/7628202a2180972f291ba1bc6723834921e72c19",
+    "pinned_resolve_base": "https://huggingface.co/datasets/lerobot/pusht/resolve/7628202a2180972f291ba1bc6723834921e72c19/",
+    "format_documentation": "https://huggingface.co/docs/lerobot/lerobot-dataset-v3"
+  },
+  "file_count": 8,
+  "total_bytes": 7686801,
+  "files": {
+    ".gitattributes": {
+      "size": 2419,
+      "sha256": "a2bdf429c1bc3858213bb4b7a748fa36a71536a5a1ff98861281853c3c2be1f2"
+    },
+    "README.md": {
+      "size": 3538,
+      "sha256": "246e94b68f204bfcd05bb32e23631c3316b8de6152d7a85e693d4455540ef72f"
+    },
+    "data/chunk-000/file-000.parquet": {
+      "size": 674393,
+      "sha256": "9abc0431f12d10c33b5b37b1bf1e6e557c8ae1c8c29fb86658969e48fcbbbf01"
+    },
+    "meta/episodes/chunk-000/file-000.parquet": {
+      "size": 106584,
+      "sha256": "bc1226f33d3d1635ec1954f9942073709be8e106fde5f4f16b9d52edc4e0ebc4"
+    },
+    "meta/info.json": {
+      "size": 2261,
+      "sha256": "0b46becc21ad92b117da1e95daf44110bb21d0bde75638b4ad167c8ccd959d38"
+    },
+    "meta/stats.json": {
+      "size": 4371,
+      "sha256": "2a58f97df48893274c587fdf09f5cecb31fe385b1e188a82197a8972ccfb9d6d"
+    },
+    "meta/tasks.parquet": {
+      "size": 2265,
+      "sha256": "95535f5152771bc0a6ab0fd93d23d7c1fecd9b7a13dc117852dfdd94f5b2c711"
+    },
+    "videos/observation.image/chunk-000/file-000.mp4": {
+      "size": 6890970,
+      "sha256": "f58d11857651dad5983c021b56a50a68a6ce19068834c1fb5cac099219fb3a78"
+    }
+  },
+  "metadata_expected": {
+    "codebase_version": "v3.0",
+    "robot_type": "unknown",
+    "total_episodes": 206,
+    "total_frames": 25650,
+    "total_tasks": 1,
+    "chunks_size": 1000,
+    "fps": 10,
+    "splits": {"train": "0:206"},
+    "data_path": "data/chunk-{chunk_index:03d}/file-{file_index:03d}.parquet",
+    "video_path": "videos/{video_key}/chunk-{chunk_index:03d}/file-{file_index:03d}.mp4",
+    "features": {
+      "observation.image": {
+        "dtype": "video",
+        "shape": [96, 96, 3],
+        "names": ["height", "width", "channel"],
+        "video_info": {
+          "video.fps": 10.0,
+          "video.codec": "av1",
+          "video.pix_fmt": "yuv420p",
+          "video.is_depth_map": false,
+          "has_audio": false
+        }
+      },
+      "observation.state": {"dtype": "float32", "shape": [2], "names": {"motors": ["motor_0", "motor_1"]}, "fps": 10.0},
+      "action": {"dtype": "float32", "shape": [2], "names": {"motors": ["motor_0", "motor_1"]}, "fps": 10.0},
+      "episode_index": {"dtype": "int64", "shape": [1], "names": null, "fps": 10.0},
+      "frame_index": {"dtype": "int64", "shape": [1], "names": null, "fps": 10.0},
+      "timestamp": {"dtype": "float32", "shape": [1], "names": null, "fps": 10.0},
+      "next.reward": {"dtype": "float32", "shape": [1], "names": null, "fps": 10.0},
+      "next.done": {"dtype": "bool", "shape": [1], "names": null, "fps": 10.0},
+      "next.success": {"dtype": "bool", "shape": [1], "names": null, "fps": 10.0},
+      "index": {"dtype": "int64", "shape": [1], "names": null, "fps": 10.0},
+      "task_index": {"dtype": "int64", "shape": [1], "names": null, "fps": 10.0}
+    },
+    "data_files_size_in_mb": 100,
+    "video_files_size_in_mb": 500
+  },
+  "episode_metadata_expected": {
+    "rows": 206,
+    "episode_index_range_inclusive": [0, 205],
+    "dataset_interval_half_open": [0, 25650],
+    "intervals_contiguous_nonoverlapping": true,
+    "length_sum": 25650,
+    "length_min": 49,
+    "length_max": 246,
+    "data_chunk_index": 0,
+    "data_file_index": 0,
+    "video_chunk_index": 0,
+    "video_file_index": 0,
+    "base_columns": [
+      "episode_index",
+      "data/chunk_index",
+      "data/file_index",
+      "dataset_from_index",
+      "dataset_to_index",
+      "videos/observation.image/chunk_index",
+      "videos/observation.image/file_index",
+      "videos/observation.image/from_timestamp",
+      "videos/observation.image/to_timestamp",
+      "tasks",
+      "length",
+      "meta/episodes/chunk_index",
+      "meta/episodes/file_index"
+    ],
+    "stats_column_pattern": "stats/{feature}/{statistic}",
+    "stats_features": ["observation.image", "observation.state", "action", "episode_index", "frame_index", "timestamp", "next.reward", "next.done", "next.success", "index", "task_index"],
+    "statistics": ["min", "max", "mean", "std", "count"],
+    "task_text": "Push the T-shaped block onto the T-shaped target.",
+    "video_timestamp_comparison": "Use a declared floating tolerance, not bitwise equality; final metadata timestamp is approximately 2565 seconds."
+  },
+  "task_metadata_expected": {
+    "rows": 1,
+    "columns": {"task_index": "int64", "__index_level_0__": "string"},
+    "records": [{"task_index": 0, "__index_level_0__": "Push the T-shaped block onto the T-shaped target."}]
+  },
+  "policy_statistics_expected": {
+    "observation.image": {
+      "min": [[[0.0]], [[0.0]], [[0.20392157137393951]]],
+      "max": [[[1.0]], [[1.0]], [[1.0]]],
+      "mean": [[[0.971810055192843]], [[0.980545840215243]], [[0.9773617930760824]]],
+      "std": [[[0.099704437446315]], [[0.07213738658644508]], [[0.07794362643983596]]],
+      "count": [19619]
+    },
+    "observation.state": {
+      "min": [13.45642375946045, 32.93829345703125],
+      "max": [496.14617919921875, 510.9578857421875],
+      "mean": [229.11103166814436, 293.3112367905883],
+      "std": [101.8547050631131, 96.48948719420683],
+      "count": [25650]
+    },
+    "action": {
+      "min": [12.0, 25.0],
+      "max": [511.0, 511.0],
+      "mean": [228.23964986314087, 293.9890841163204],
+      "std": [101.5995746254447, 96.0392898600564],
+      "count": [25650]
+    }
+  },
+  "version_references": {
+    "v3.0_tag_revision": "b1c3ecbae7f244acc039a3dbc255a00dad1372b9",
+    "v2.1_tag_revision": "6e1d9c95aaf8abb19342e723935b6af7c54b5903",
+    "v2.1_file_count": 418,
+    "v2.1_total_bytes": 9493572,
+    "recommended_version": "Pinned main commit above, already v3.0; do not reconvert or silently resolve a moving tag."
+  },
+  "audit_scope": {
+    "all_tree_pages_checked": true,
+    "small_text_metadata_sha256_and_git_blob_oid_verified": true,
+    "episode_and_task_metadata_payload_sha256_verified_in_memory": true,
+    "frame_parquet_payload_read": false,
+    "video_payload_read": false,
+    "frame_and_video_sha256_source": "Official Hugging Face tree LFS OID; verify payload after acquisition.",
+    "policy_or_environment_constructed": false,
+    "training_started": false
+  },
+  "notes": [
+    "The complete pinned snapshot is 7686801 bytes, below 100 MB. HF repository usedStorage and info data/video shard target sizes are not snapshot download sizes.",
+    "README contains an obsolete v2.0 schema example. The pinned meta/info.json and actual file tree are authoritative for this v3.0 snapshot.",
+    "The source declares only train episodes 0:206 and no independent validation split. Freeze any future train/validation episode split separately before training; never split random frames across an episode.",
+    "Global meta/stats.json covers all source episodes. If a holdout is created, use only training-episode statistics with each feature's own count; do not leak global statistics into the controlled comparison.",
+    "Image statistics count is 19619, while action/state counts are 25650. Image statistics are not a full-frame count or a frame-completeness test.",
+    "Source next.success is entirely false. next.done is not a unique episode-boundary marker. Neither field defines the environment benchmark success criterion; use episode metadata for sequence boundaries.",
+    "Policy input whitelist: observation.image, observation.state, and the task text. The supervised target is action. Exclude next.reward, next.done, next.success, dataset indices, and timestamps from policy conditioning.",
+    "dataset_rawstate_truthonly: any simulator full-state, block/goal pose, contact, environment_state or other truth-only diagnostic fields are excluded from policy observations; do not silently add them to this native image/state profile.",
+    "The official DP checkpoint's dataset revision is unknown. Its existing 67/100 score remains an external pretrained reference, not a same-data/split/budget BC-versus-ACT controlled comparison."
+  ]
+}

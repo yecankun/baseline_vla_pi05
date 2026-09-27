@@ -1,0 +1,40 @@
+{
+  "schema": "pusht_bc_act_controlled_training_v1",
+  "scope": "public Push-T clean single-seed controlled BC/ACT training; not guidewire validation",
+  "source_revision": "7628202a2180972f291ba1bc6723834921e72c19",
+  "split_file_sha256": "24131e9146576d1aaa050b7726e8ae7c178a20ca92a63490ca9f1c74c5b22d59",
+  "normalization_file_sha256": "01bb762f7174920e778326ac5585bc90eca64bd7d5374ef6e327a43baf781c89",
+  "train_episodes": 186,
+  "val_episodes": 20,
+  "train_frames": 23488,
+  "val_frames": 2162,
+  "steps": 100000,
+  "batch_size": 64,
+  "seed": 20260913,
+  "sampler_seed": 20261013,
+  "sampler": "uniform training-frame anchors with replacement; torch CPU generator seeded sampler_seed + zero-based update index",
+  "checkpoint_every": 5000,
+  "validation_every": 5000,
+  "log_every": 100,
+  "selection": "final step 100000 only; validation is monitoring, no best-checkpoint selection or early stopping",
+  "optimizer": {
+    "bc": {"type": "AdamW", "lr": 0.001, "weight_decay": 0.0001, "betas": [0.9, 0.999], "eps": 1e-08, "grad_clip_norm": 10.0},
+    "act": {"type": "AdamW", "lr": 0.00001, "lr_backbone": 0.00001, "weight_decay": 0.0001, "betas": [0.9, 0.999], "eps": 1e-08, "grad_clip_norm": 10.0}
+  },
+  "scheduler": "none; constant learning rates",
+  "normalization": "saved train-only state/action population mean/std; fixed ImageNet image statistics; epsilon 1e-8",
+  "models": {
+    "bc": {"source": "CompactPushTBC", "pretrained": false, "observation_steps": 1, "action_horizon": 1, "loss": "normalized MSE"},
+    "act": {"source": "official LeRobot 0.4.4 full ACT via pinned factory", "pretrained": false, "observation_steps": 1, "action_horizon": 16, "execute_steps": 8, "loss": "unchanged official L1 plus 10 KL including original padding reduction"}
+  },
+  "fairness": "same frame anchors, split, normalization, batch size, update budget and random-init seed; architecture, loss, learning rates and future-action supervision differ and must be reported; official pretrained DP is external reference only",
+  "precision": "float32 CUDA; deterministic algorithms; no AMP/TF32",
+  "data_augmentation": "none; clean images only",
+  "validation": {"prediction": "first action of a fresh observation-only prediction; no target-conditioned ACT latent", "metrics": ["native first-action MAE per x/y", "frame-mean native MAE", "episode-macro native MAE", "native RMSE", "unclipped bounds violations"], "frames": "all 2162 validation frames in fixed order"},
+  "closed_loop_evaluation": {"status": "separate future run", "seed_start": 100000, "episodes": 100, "max_steps": 300, "metrics": ["info.is_success success rate and Wilson95", "mean episode max info.coverage", "native action bounds violations"], "action_clipping": false},
+  "preflight": {"optimizer_steps": 0, "batches": 3, "gradient_backward_allowed": true, "checkpoint_step": 0, "trained_checkpoint": false},
+  "efficiency": "log model parameters, measured batch gradient-check timing, update wall time, peak allocated CUDA memory and checkpoint storage; equal updates are not equal FLOPs or wall time",
+  "robustness": "future frozen paired image corruption, only after clean baseline scores; not authorized by this protocol",
+  "ablation_and_xai": "no innovation or XAI contribution claimed in this baseline stage; world-model work remains paused",
+  "execution": "training requires explicit --execute and matching successful preflight; long job is user-run; no environment rollout from the trainer"
+}

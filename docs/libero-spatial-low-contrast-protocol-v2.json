@@ -1,0 +1,94 @@
+{
+  "schema_version": 2,
+  "protocol_id": "libero_spatial_low_contrast_paired_v2",
+  "evidence_scope": "public_benchmark_paired_diagnostic_lifecycle_repair_not_architecture_gain",
+  "parent_protocol": {
+    "path": "docs/libero-spatial-low-contrast-protocol-v1.json",
+    "sha256": "11dbb573db0bab86e883863ec38f0721f695bb345ad037b845c2bbd37d06bf72",
+    "inheritance": "all_parent_semantics_unchanged_except_explicit_lifecycle_and_stages_below"
+  },
+  "implementation_sources": {
+    "tools/run_pi05_libero_low_contrast.py": "6a8dd7a1e891d4ef350967a93b9feebf26bcc3b8f408e38ba9188dc2a9156586",
+    "tools/pi05_libero_low_contrast_contract.py": "5027b653fc0145ad641d10ff87f7a323f10ed94c45d3584475868a49f773e734"
+  },
+  "lifecycle": {
+    "native_environment_per_condition": "new_original_single_task_synchronous_environment",
+    "reuse_environment_between_conditions_or_tasks": false,
+    "seed_python_numpy_torch_before_environment_construction": 1000,
+    "seed_python_numpy_torch_before_official_rollout": 1000,
+    "native_init_state_index": 0,
+    "native_num_steps_wait": 10,
+    "native_horizon": 280,
+    "policy_episode_implementation": "unchanged_pinned_v1_episode",
+    "close_environment_after_each_condition": true,
+    "additional_state_forcing_allowed": false,
+    "pair_hash_equality_may_be_relaxed": false,
+    "reset_rng_hash_scope": "python_numpy_torch_cpu_and_all_cuda_rng_states_after_native_reset",
+    "reset_observation_hash_scope": "complete_raw_post_settle_observation_before_corruption"
+  },
+  "stages": {
+    "conditions": [
+      "clean",
+      "low_contrast"
+    ],
+    "seed": 1000,
+    "init_state_index": 0,
+    "reset-check": {
+      "task_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "row_count": 20,
+      "policy_loaded": false,
+      "policy_inference": false,
+      "optimizer_steps": 0
+    },
+    "check": {
+      "task_ids": [
+        0,
+        4
+      ],
+      "episode_count": 4,
+      "full_episodes": true,
+      "purpose": "task0_and_task4_lifecycle_regression"
+    },
+    "screen": {
+      "task_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "episode_count": 20,
+      "full_episodes": true,
+      "user_run_by_default": true
+    },
+    "separate_fresh_stage_output_directories": true,
+    "reuse_earlier_stage_or_historical_episodes": false,
+    "overwrite_or_resume_partial_results": false
+  },
+  "claims": {
+    "training": false,
+    "model_selection": false,
+    "architecture_gain": false,
+    "robustness_certainty": false,
+    "real_system_validated": false,
+    "historical_b4b_reclassification": false,
+    "parent_v1_results_reclassified_as_v2": false,
+    "reset_checks_are_policy_performance_evidence": false
+  }
+}

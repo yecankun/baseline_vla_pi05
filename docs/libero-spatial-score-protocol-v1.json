@@ -1,0 +1,335 @@
+{
+  "schema_version": "libero_spatial_score_protocol_v1",
+  "created_at_utc": "2026-09-11T15:59:52Z",
+  "status": "frozen_pre_acquisition",
+  "scope": "public_libero_benchmark_only",
+  "decision": {
+    "primary_route": "evaluate_pinned_pi05_libero_finetuned_before_any_new_training",
+    "secondary_route": "finetune_current_smolvla_from_pinned_base_on_pinned_lerobot_libero",
+    "direct_smolvla_libero_checkpoint_route": "rejected_schema_incompatible",
+    "checkpoint_download_authorized": false,
+    "dataset_download_authorized": false,
+    "training_authorized": false,
+    "evaluation_authorized": false
+  },
+  "software_contract": {
+    "lerobot": "0.4.4",
+    "hf-libero": "0.1.4",
+    "transformers": "4.53.2",
+    "tokenizers": "0.21.4",
+    "mujoco_gl": "egl",
+    "python_environment": "project2026-pi",
+    "remote_host": "project4090",
+    "remote_project_root": "/home/zsw/project_2026"
+  },
+  "environment_contract": {
+    "suite": "libero_spatial",
+    "task_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "task_count": 10,
+    "task_0": {
+      "task_name": "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+      "task_instruction": "pick up the black bowl between the plate and the ramekin and place it on the plate",
+      "bddl_sha256": "9b59eb1287802868ad9bc78d58e6d36d4ba31134e679cfdbdf4b0feb660c959b",
+      "init_state_file_sha256": "cbbc73792ce546c9bec181fd328a411d3183074840b282671dee481511381d0a",
+      "available_init_state_count": 50
+    },
+    "control_mode": "relative",
+    "init_states": true,
+    "num_steps_wait": 10,
+    "max_episode_steps": 280,
+    "camera_names": [
+      "agentview_image",
+      "robot0_eye_in_hand_image"
+    ],
+    "asset_directory": "/home/zsw/project_2026/simulation_output/libero_assets_v1",
+    "asset_provenance_report": "simulation_output/lerobot_public_env_runtime_smoke_libero_v3.json"
+  },
+  "observation_contract": {
+    "image_features": {
+      "observation.images.image": [
+        3,
+        256,
+        256
+      ],
+      "observation.images.image2": [
+        3,
+        256,
+        256
+      ]
+    },
+    "state_feature": {
+      "key": "observation.state",
+      "dimension": 8,
+      "layout": [
+        "eef_position_x",
+        "eef_position_y",
+        "eef_position_z",
+        "eef_axis_angle_x",
+        "eef_axis_angle_y",
+        "eef_axis_angle_z",
+        "gripper_qpos_0",
+        "gripper_qpos_1"
+      ]
+    },
+    "task_feature": "native_libero_task_instruction",
+    "diagnostic_oracle_fields_allowed": false
+  },
+  "action_contract": {
+    "key": "action",
+    "dimension": 7,
+    "control_mode": "relative",
+    "native_low": -1.0,
+    "native_high": 1.0,
+    "clipping_allowed": false,
+    "guidewire_action_reinterpretation_allowed": false
+  },
+  "evaluation_stages": {
+    "b4a_task0_preflight_score": {
+      "purpose": "score_pipeline_preflight_not_official_suite_average",
+      "task_ids": [
+        0
+      ],
+      "episodes_per_task": 10,
+      "total_episodes": 10,
+      "init_state_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "episode_seeds": [
+        1000,
+        1001,
+        1002,
+        1003,
+        1004,
+        1005,
+        1006,
+        1007,
+        1008,
+        1009
+      ],
+      "batch_size": 1,
+      "max_parallel_tasks": 1,
+      "max_episode_steps": 280,
+      "rendered_episode_limit": 10,
+      "model_selection_allowed": false,
+      "published_aggregate_comparison_allowed": false
+    },
+    "b4b_full_spatial_score": {
+      "purpose": "official_libero_spatial_suite_success_rate",
+      "task_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "episodes_per_task": 10,
+      "total_episodes": 100,
+      "init_state_indices_per_task": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "episode_seeds_per_task": [
+        1000,
+        1001,
+        1002,
+        1003,
+        1004,
+        1005,
+        1006,
+        1007,
+        1008,
+        1009
+      ],
+      "batch_size": 1,
+      "max_parallel_tasks": 1,
+      "max_episode_steps": 280,
+      "model_selection_allowed": false,
+      "published_aggregate_comparison_allowed": true
+    }
+  },
+  "metric_contract": {
+    "primary": "episode_success_rate",
+    "success_source": "libero_environment_is_success",
+    "report_per_task": true,
+    "report_suite_macro_average": true,
+    "report_episode_count": true,
+    "report_seed_and_init_state_index": true,
+    "reward_as_primary_metric_allowed": false,
+    "cross_domain_raw_score_comparison_allowed": false
+  },
+  "checkpoint_routes": {
+    "pi05_primary": {
+      "status": "selected_pending_user_transfer_and_gate_b4a",
+      "repo_id": "lerobot/pi05_libero_finetuned",
+      "revision": "8e174154ef5f6c60a8da12ae99c303d8963138c1",
+      "repository_size_bytes": 7473127906,
+      "model_file": "model.safetensors",
+      "model_size_bytes": 7473096344,
+      "model_sha256": "877b3ec1130548b69af7f8aeef3ec9d3fc7738040f0b9beb490857ec970997ae",
+      "input_image_keys": [
+        "observation.images.image",
+        "observation.images.image2"
+      ],
+      "input_image_shape": [
+        3,
+        256,
+        256
+      ],
+      "input_state_dimension": 8,
+      "output_action_dimension": 7,
+      "normalization": {
+        "STATE": "MEAN_STD",
+        "ACTION": "MEAN_STD",
+        "VISUAL": "IDENTITY"
+      },
+      "empty_cameras": 1,
+      "image_resolution": [
+        224,
+        224
+      ],
+      "n_action_steps_override": 10,
+      "load_mode": "policy.path_loads_checkpoint_config_and_processors",
+      "dataset_required_for_evaluation": false
+    },
+    "smolvla_existing_finetuned": {
+      "status": "rejected_for_direct_score",
+      "repo_id": "lerobot/smolvla_libero",
+      "revision": "31d453f7edd78c839a8bbc39744a292686daf0de",
+      "repository_size_bytes": 906741829,
+      "model_file": "model.safetensors",
+      "model_size_bytes": 906712520,
+      "model_sha256": "9a9f6413e42c0f332fccbce9a0dc796af2790f82cf002f791cdbf7e01e1afca8",
+      "declared_state_dimension": 6,
+      "declared_image_keys": [
+        "observation.images.camera1",
+        "observation.images.camera2",
+        "observation.images.camera3"
+      ],
+      "rejection_reasons": [
+        "checkpoint_state_dimension_6_does_not_match_libero_environment_state_dimension_8",
+        "checkpoint_declares_three_camera_features_while_environment_exposes_two",
+        "checkpoint_processor_renames_image_and_image2_but_does_not_supply_camera3",
+        "direct_policy_path_would_not_preserve_the_frozen_environment_contract"
+      ]
+    },
+    "smolvla_secondary_training": {
+      "status": "selected_but_not_authorized_to_download_or_train",
+      "base_repo_id": "lerobot/smolvla_base",
+      "base_revision": "c83c3163b8ca9b7e67c509fffd9121e66cb96205",
+      "base_repository_size_bytes": 914740952,
+      "base_model_size_bytes": 906712520,
+      "base_model_sha256": "7cd549ac2351fb069c0ddb3c34ad2d09cfc92b56a15dccdfc2e41467aaca01eb",
+      "configuration_source": "pinned_lerobot_libero_dataset_features_and_statistics",
+      "normalization": {
+        "STATE": "MEAN_STD",
+        "ACTION": "MEAN_STD",
+        "VISUAL": "IDENTITY"
+      },
+      "training_authorized": false
+    }
+  },
+  "demonstration_dataset_route": {
+    "status": "selected_for_future_smolvla_training_but_not_authorized_to_download",
+    "repo_id": "lerobot/libero",
+    "revision": "a1aaacb7f6cd6ee5fb43120f673cebb0cfea7dd4",
+    "repository_size_bytes": 1935512060,
+    "format": "lerobot_dataset_v3_video",
+    "episodes": 1693,
+    "frames": 273465,
+    "tasks": 40,
+    "fps": 10.0,
+    "image_keys": [
+      "observation.images.image",
+      "observation.images.image2"
+    ],
+    "image_shape": [
+      256,
+      256,
+      3
+    ],
+    "state_dimension": 8,
+    "action_dimension": 7,
+    "video_backend": "torchcodec",
+    "revision_must_be_pinned": true
+  },
+  "paired_visual_robustness": {
+    "enabled_only_after_clean_score": true,
+    "checkpoint_must_match_clean": true,
+    "task_ids_must_match_clean": true,
+    "init_state_indices_must_match_clean": true,
+    "episode_seeds_must_match_clean": true,
+    "horizon_must_match_clean": true,
+    "global_corruption_seed": 20260911,
+    "corruptions": [
+      "gaussian_sensor_noise",
+      "low_contrast",
+      "blur",
+      "occlusion"
+    ],
+    "severities": [
+      1,
+      2,
+      3
+    ],
+    "noisy_checkpoint_selection_allowed": false,
+    "noisy_training_allowed": false
+  },
+  "large_file_transfer": {
+    "threshold_bytes": 104857600,
+    "transfer_owner": "user",
+    "reason": "ssh_is_unstable",
+    "resources_requiring_user_transfer": [
+      "lerobot/pi05_libero_finetuned",
+      "lerobot/smolvla_base",
+      "lerobot/libero"
+    ]
+  },
+  "stop_conditions": [
+    "do_not_download_any_checkpoint_or_dataset_without_explicit_user_direction",
+    "do_not_run_gate_b4a_or_b4b_without_explicit_user_direction",
+    "do_not_train_during_protocol_or_metadata_audit",
+    "do_not_score_random_smolvla_or_base_pi05_smokes",
+    "do_not_modify_collectors_simulation_experts_or_data_track_documents",
+    "do_not_reinterpret_libero_actions_as_guidewire_actions"
+  ],
+  "official_sources": [
+    "https://huggingface.co/docs/lerobot/libero",
+    "https://huggingface.co/docs/lerobot/pi05",
+    "https://huggingface.co/lerobot/pi05_libero_finetuned",
+    "https://huggingface.co/lerobot/smolvla_libero",
+    "https://huggingface.co/datasets/lerobot/libero"
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "schema": "libero_activation_inspection_plan_v1",
+  "created_date": "2026-09-13",
+  "authorization_record": "User approved the proposed read-only visual feature scale, activation saturation and fusion-path inspection. This records scope, not a digital signature or training authorization.",
+  "allowed": {
+    "clean_frozen_activation_inspection": true,
+    "optimizer_updates": false,
+    "backward": false,
+    "input_intervention": false,
+    "normalization_refit": false,
+    "feature_extraction": false,
+    "architecture_or_loss_change": false,
+    "policy_rollout": false,
+    "project_data_inspection": false
+  },
+  "phases": ["step0", "final200"],
+  "seeds": [20260912, 20260913, 20260914],
+  "arms": ["observed_action", "normalized_zero_action"],
+  "partition_unique_rows": {"train": 1134, "validation": 524},
+  "validation_windows": 500,
+  "model_forwards": 396,
+  "output": "simulation_output/pi05_libero_activation_inspection_v1",
+  "previous_plan_sha256": "b81ed7f66ee10625d66a9e34e582283690930833c91e0f2c7bdb77905f6d7aea",
+  "previous_report_sha256": "1849406c3a434b3dd43ed1d7859c0d401f69022acd4f9f1200a8af3951b25e41",
+  "protocol": {
+    "question": "Locate descriptive scale/saturation/fusion evidence that might explain weak local visual response, without changing inputs or architecture or claiming a causal repair.",
+    "source": "Same pinned native LIBERO Spatial9/source39 task, existing8-train/4-validation split and unchanged clean feature cache. Raw scales use all1134 unique train and524 unique validation rows separately. No source acquisition, camera processing or new embeddings.",
+    "baselines": "All3 seeds x2 action arms at the original step0 initialization and final200 checkpoint. Private CPU initialization must reproduce original parameter bytes and predictions exactly; trusted final checkpoint binding keeps old training authorization. No seed/checkpoint/model selection.",
+    "model_inputs": "Only same500 original clean validation windows, history4/horizon3, state8/action7/task and alltrue masks. Original train normalization unchanged. Zero-action arm is zero in normalized coordinates, raw train mean, not physical hold. No visual perturbation, blackout or new action ablation.",
+    "capture": "Read-only forward hooks capture actual outputs and downstream input arguments: view projection pre/post, history concatenation/pre/post, context GRU hidden, task embedding, context-task concatenation/pre and actual initial post, action projection pre/post, future hidden and both actual residual heads. One actual native forward, no replacement output. Actual tanh posts must byte-match their preactivations through the same explicit operation; full output must replay the saved reference hash. Hooks, input bytes, parameter identities/versions/content remain unchanged.",
+    "saturation": "For the five explicit tanh pairs only, lock thresholds |post|>=0.99, >=0.999 and exactly1; report counts/fractions. Local float32-output slope proxy is1-post_float64_squared, report mean/min/max and <=0.01/0.001 counts/fractions. This is not backward gradients, a Jacobian, GRU internal-gate saturation, or causal feature importance.",
+    "scale_metrics": "Per tensor count/sum/squared_sum/absolute_sum/min/max/mean/mean_abs/RMS/centered variance. Coordinate-center RMS and within-coordinate standard-deviation RMS distinguish large constant offsets from variation. Raw scales use unique rows; model activations use overlapping validation history windows, not independent frames. No scale statistic is fed back as an input transform.",
+    "fusion": "Small descriptive float64 affine decomposition of history_projection into view0/view1/visual_mask/state/state_mask/bias, and context_task_projection into context/task/bias. Groups exactly cover all input columns and have identical output dimensions. Compare sum(parts) to float64 full affine with a numerical guard; report difference to actual float32 preactivation separately. No percentage attribution: norms can cancel, and constant task/mask terms do not carry sample discrimination.",
+    "aggregation": "Batch sufficient summaries and activation hashes; per-episode, window-weighted micro and equal-episode macro, then3-seed means/descriptive population std and paired final-minus-step0. No significance from these optimizer seeds. Coordinate moments are streaming helper statistics, not reconstructed from pooled scalar means alone.",
+    "efficiency": "396 clean CPU float32 native model forwards total (12 groups x33 batches). No loss evaluation, backward, optimizer, persistence prediction, new encoding or policy rollout. Read-only float64 affine and moment arithmetic are diagnostics, not extra model forwards.",
+    "recovery": "Exclusive output with preflight/start/failure or completed status. No overwrite, automatic retry, checkpoint update, resume or outcome-dependent threshold change. Inspect PID/status after disconnect before further action.",
+    "decision": "Report where saturation or weak variation is observed, separately at initialization/final and each seed/arm. Do not state it is the sole cause, promise gains from normalization/another architecture, or implement/train a repair automatically."
+  },
+  "limitations": [
+    "Only one task and4 already-inspected validation episodes;3 seeds are optimizer initializations, not independent trajectories. Unknown PI0.5 pretraining overlap and unverified family independence remain.",
+    "All state/action/task inputs are available. This clean activation inspection does not establish the causal usefulness of a modality or identify data/target shortcuts by itself.",
+    "Saturation/local slope metrics apply only to explicit tanh operations, not internal GRU gates or backpropagated gradients. No gradient or Jacobian is measured.",
+    "Large affine component magnitudes are not causal shares; cancellation and float32/float64 rounding are possible. Task embedding and validity masks are constant in this one-task allvalid setting.",
+    "Unique-row raw scales and overlapping-window activation scales have different sampling weights. Per-coordinate variance across positions is not purely temporal variance or independent evidence count.",
+    "No input normalization is changed or fitted for use, no architecture/loss repair is implemented or trained. Any repair requires a separately specified matched-budget comparison.",
+    "No robustness certification, policy success, guidewire/Elite/Piper, contact/tactile, rotation, formal-training-readiness or real-system claim."
+  ],
+  "runtime_estimate": "Prior594 native forwards plus drift36.12s. This396-forward run adds multi-layer read-only capture, moments and small float64 decompositions; estimate1-4minutes as one logical CPU job including hashes. No training or feature extraction.",
+  "planning_skill_scope": "Engineering diagnostic protocol and metric/limitation checklist; not a manuscript Results/Discussion section. No mock outcomes or manuscript templates.",
+  "input_sha256": {
+    "tools/run_pi05_libero_activation_inspection.py": "d0a33c44f97fbfd68120464ffa48f398506eb3b859e69785bd8b7e9370c04e6a",
+    "tools/pi05_libero_activation_inspection.py": "97775575f8ca8d5b9474afe6326a153a44d39f781b1d7f3364e71c2c02c67e88"
+  }
+}

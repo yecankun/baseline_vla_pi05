@@ -1,0 +1,21 @@
+{
+  "entry": [
+    0.19030446654081162,
+    -0.3677419209418544,
+    0.06048386977100119
+  ],
+  "shared_waypoints": [],
+  "left_target": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "right_target": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "left_waypoints": [],
+  "right_waypoints": [],
+  "_picked_point_order_note": "Default mapping assumes picked order: entry, shared waypoints..., left_target, right_target. Edit the JSON if your intended ordering is different."
+}

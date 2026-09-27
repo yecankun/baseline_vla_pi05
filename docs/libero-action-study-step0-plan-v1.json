@@ -1,0 +1,100 @@
+{
+  "schema": "libero_action_study_step0_plan_v1",
+  "created_date": "2026-09-13",
+  "status": "authorized_fixed_draws_and_random_step0_only",
+  "authorization": {
+    "fixed_draws": true,
+    "paired_initialization": true,
+    "step0_evaluation": true,
+    "optimizer_construction": false,
+    "optimization": false,
+    "feature_extraction": false,
+    "rollout": false
+  },
+  "approval_scope": "User approved the paired observed-action/normalized-zero-action entrypoint, frozen sampling manifests and step0 checks only; this does not supersede future training gates in the prospective study plan.",
+  "feature_pack": "simulation_output/pi05_libero_action_study_features_v1",
+  "output": "simulation_output/pi05_libero_action_study_step0_v1",
+  "selected_split": {
+    "train_episode_indices": [
+      1633,
+      1674,
+      1419,
+      1312,
+      1518,
+      1520,
+      1531,
+      1690
+    ],
+    "validation_episode_indices": [
+      1530,
+      1476,
+      1458,
+      1566
+    ]
+  },
+  "seeds": [
+    20260912,
+    20260913,
+    20260914
+  ],
+  "windows": {
+    "train": 1086,
+    "validation": 500
+  },
+  "prospective_batches_per_seed": 200,
+  "batch_size": 16,
+  "model_config": {
+    "visual_dim": 2048,
+    "hidden_dim": 128,
+    "context_len": 4,
+    "horizon": 3,
+    "state_dim": 8,
+    "action_dim": 7,
+    "views": 2,
+    "dropout": 0
+  },
+  "sampling": "One 3200-draw JSON per seed shared by both arms; private CPU torch.Generator, lexicographic groups -> sorted episode IDs -> original train window list position; three scalar randint calls per draw including singleton levels. Manifests freeze before any model construction; zero optimizer updates.",
+  "normalization": "Load immutable saved train-only statistics; unchanged dataset constructor independently recomputes for equality validation, never writes or replaces statistics.",
+  "evaluation": "All1086 train and500 validation windows exactly once per seed/arm, sorted episode IDs and original within-episode order, episode-homogeneous batches <=16; frozen eval models, inference-only; shared persistence common support must equal original all-valid target bytes.",
+  "primary": "Per-validation-episode normalized8D state MAE, equal episode macro then descriptive mean/population std across three seeds. Step0 random differences are mechanics only; never choose seeds/checkpoints or infer action utility.",
+  "secondary": "Unchanged native masked SmoothL1 (visual1 + state0.25, beta1), sufficient-sum/count micro metrics; per episode/horizon/view/state coordinate/same-unit metrics and absolute/relative changes; macro RMSE means mean episode RMSE, not pooled RMSE.",
+  "runtime": {
+    "torch": "2.10.0+cu128",
+    "device": "cpu",
+    "dtype": "float32",
+    "threads": 1,
+    "deterministic_algorithms": true,
+    "amp": false,
+    "tf32": false,
+    "cuda_initialization_allowed": false
+  },
+  "recovery": "Exclusive fresh output; preserve started/failure artifacts, no overwrite or automatic retry/resume. Inspect PID and logs after interruption; successful step0 must not be rerun automatically.",
+  "input_sha256": {
+    "tools/pi05_libero_world_model_persistence.py": "19908c48609cafab13a495f44eeb13166adaa0d4a42350b64c0cc03c7ba08c8b",
+    "simulation_output/pi05_libero_action_study_features_v1/report.json": "9e0537b5d520f5e242a02be1f94c454febfec62854a8c43a517f7acdce05ac56",
+    "docs/libero-action-ablation-study-plan-v1.json": "210ff8bbb75e3316620590cda9e5067f7447125acddb53ae7fe751bea01810ac",
+    "tools/pi05_libero_action_ablation.py": "8614339c8e7b43e9a0f46ddfd71dd8c776e2a78e391426cf8b6e2b63269aab83",
+    "tools/pi05_libero_action_study_sampling.py": "d36e8b43f8fd3c97cbd0b32c0d427d0e4c50d42e07f62861ab7f07f937d34d2f",
+    "tools/pi05_libero_world_model_objectives.py": "0db64bdbe5ebdc3d2de06d9d649e88fdc1d9ff92f7a4644aa6ba01934c484400",
+    "simulation_output/pi05_libero_action_study_features_v1/split.json": "044ea50f188ff6f58e9680064a81e3970b15fde3c3c9ab5c024907aef2c662c7",
+    "simulation_output/pi05_libero_action_study_features_v1/preparation/normalization.json": "1fdea3ce37c995b5de161b04fbf2b8567e24fbc7915786b29bf163fb147acf64",
+    "tools/pi05_libero_world_model.py": "c0da1ab867264b0ced774f1ed523bdb11dd3e936d168a4729dabf63c067781d0",
+    "simulation_output/pi05_libero_action_study_features_v1/status.json": "497ed734ab67d1767e4bd573f059ad1b0c0b76c7cedaceb965e5ac80e60704f0",
+    "tools/run_pi05_libero_action_study_step0.py": "eb1c56258492be157f33e3926dc0654d7b98b410d42836f3df472d62f50f24f1",
+    "simulation_output/pi05_libero_action_study_features_v1/manifest.json": "133894fb46d9d2920dc5393affa2d5fb07e5c0baf3fb4c12d7a6af25238ee56b",
+    "tools/pi05_libero_world_model_adapter.py": "924cfe56e8b1d6653b86073d08988f09491d6c02b40439965315d492de37fab0",
+    "docs/libero-native-world-model-learning-protocol-v1.json": "5d1b67c75c03dcaeba6c53bdf7c0f8dc14d2fc5bb4d4e0d93f5c63c2ce58c2ff",
+    "docs/libero-action-study-feature-plan-v1.json": "ee85b9efbabf980f1aae550652a4db92c4f68b3b47b0bd34d25f3658cdefdf7a"
+  },
+  "boundaries": {
+    "training_ready": false,
+    "formal_data_allowed": false,
+    "family_independence_verified": false,
+    "checkpoint_training_overlap_unknown": true,
+    "learned_action_benefit_claim": false,
+    "robustness_claim": false,
+    "causal_or_counterfactual_claim": false,
+    "policy_benefit_claim": false,
+    "real_system_validated": false
+  }
+}

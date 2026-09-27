@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+
+# Environments
+.venv/
+venv/
+
+# Local secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+
+# IDE and OS
+.idea/
+.vscode/
+Thumbs.db
+Desktop.ini
+
+# Build and runtime caches
+build/
+dist/
+*.egg-info/
+torchinductor_Silence/
+.tmp_*/
+
+# Large generated outputs
+simulation_output/
+outputs/
+docs/_*/
+
+# Local datasets and recordings
+branchs/
+collected_data/
+paper/
+reference_code/
+*.mp4
+*.avi
+*.mov
+
+# Training artifacts and checkpoints
+*.pt
+*.pth
+*.safetensors
+*.ckpt
+events.out.tfevents.*
+
+# Nested external repos and vendor assets
+robot_assets/elite_ros/
+robot_assets/piper_ros/
+
+# Local logs
+*.log

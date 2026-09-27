@@ -1,0 +1,2 @@
+"""Lightweight guidewire simulation MVP."""
+

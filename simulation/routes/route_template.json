@@ -1,0 +1,37 @@
+{
+  "entry": [
+    0.24974574148654938,
+    -2.4800381660461426,
+    0.3652297258377075
+  ],
+  "shared_waypoints": [],
+  "left_waypoints": [],
+  "right_waypoints": [],
+  "left_target": [
+    -0.7238585948944092,
+    4.276397228240967,
+    -0.2448345422744751
+  ],
+  "right_target": [
+    0.7756515145301819,
+    4.291247367858887,
+    -0.5382547974586487
+  ],
+  "_notes": [
+    "Edit entry/waypoints/targets to force the guidewire through the desired full vessel route.",
+    "Each route is planned as entry -> shared_waypoints -> side_waypoints -> side_target.",
+    "Points are snapped to the nearest STL mesh vertex before surface-graph path planning."
+  ],
+  "_bounds": [
+    [
+      -0.8656300902366638,
+      -2.4895167350769043,
+      -0.8459919691085815
+    ],
+    [
+      0.9974817037582397,
+      4.533079624176025,
+      0.7799414992332458
+    ]
+  ]
+}

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Real10 · 固定四点参照与导丝点标</title>
+<style>
+*{box-sizing:border-box}body{margin:0;color:#24374a;background:#f3f6fa;font:15px/1.55 "Microsoft YaHei",sans-serif}header{background:#18394c;color:#fff;padding:16px 24px}h1{font-size:23px;margin:0}header p{margin:3px 0;color:#d4e5ef}main{max-width:1740px;margin:auto;padding:16px 22px}.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0}button,select,input,textarea{font:inherit;border:1px solid #bdcbd8;border-radius:6px;padding:6px 10px;color:#23394d;background:white}button{cursor:pointer}button:disabled{opacity:.4;cursor:default}.primary,.mode.active{background:#126385;color:white;border-color:#126385}.notice{border-left:4px solid #d4a044;background:#fff6e3;padding:10px 14px}.note{font-size:13px;color:#5a7083}.modes{background:#e1edf4;padding:10px;border-radius:8px}.views{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:white;border:1px solid #dae2eb;border-radius:10px;padding:12px;min-width:0}.card h2{margin:0;font-size:18px}.card input[type=text]{width:100%}.viewport{overflow:auto;max-height:440px;background:#132432;border:1px solid #294156;margin-top:10px}.viewport canvas{display:block;cursor:crosshair;max-width:none}.point-row{display:grid;grid-template-columns:145px 1fr 120px;gap:8px;align-items:center;margin:6px 0}.point-row button.active{outline:3px solid #9ebacc}.coords{font:12px monospace;color:#486074}.identity{display:grid;gap:6px;margin:10px 0}.identity label{font-size:13px}.identity select{width:100%}.time{font-size:12px;color:#607789}.footer{position:static;padding:12px 0;margin-top:14px;border-top:1px solid #d2dce6}.message{min-height:24px;color:#146349}.error{color:#b43030}textarea{width:100%;min-height:48px}#slider{flex:1;min-width:200px}.guide{font-size:14px;max-width:1250px}details{margin:12px 0}summary{cursor:pointer}#context-note{font-weight:bold;color:#925512}#frame-state{font-weight:bold}.changed{color:#a96313}[hidden]{display:none!important}#progress{font-size:13px;margin-left:auto}@media(max-width:1000px){.views{grid-template-columns:1fr}main{padding:12px}.viewport{max-height:500px}.point-row{grid-template-columns:145px 1fr 110px}}
+</style>
+<header><h1>固定血管四点 · 逐窗导丝对应</h1><p>血管各视角只标一次；每个窗口只标导丝 W。原图坐标 · 保留旧标注 · 不改响应类别。</p></header>
+<main>
+<div class="notice">固定参照：P0 起点 → P1 分支前 → PL 左支 / PR 右支。Side、Top 各四点，共八点。左右按实际任务分支命名，不按画面左右；看不清就记缺失，不要猜。</div>
+<div class="bar modes"><button class="mode" id="mode-reference">1 · 血管四点（各视角一次）</button><button class="mode" id="mode-wire">2 · 导丝 W（逐窗首末）</button><span id="reference-progress"></span></div>
+<details><summary>怎么标：固定四点与逐窗 W 分开保存</summary><div class="guide">
+<p><b>第一步：血管四点。</b>在一张清楚的图上，依次点 P0 共同主干起点、P1 分叉前且仍在共同主干内、PL 左支内一点、PR 右支内一点。尽量落在管腔中央。每路各标一次，固定相机和血管下所有窗口复用；切帧/切窗可检查叠加是否仍对齐。相机或血管位置改变时不要继续复用。</p>
+<p><b>第二步：导丝 W。</b>切换到导丝模式，选择尖端或可辨识的同一材料标记，在每窗首、末帧分别定位，中间帧选填。每帧只点 W，固定路径只读叠加。光滑轮廓交叉处、最亮点、折弯位置不保证是同一材料点。</p>
+<p>两个模式分别保存，允许缺失和草稿。确认框只在人工核对后勾选。四点折线是粗略二维方向参照，不是精确中心线、毫米推进量或自动响应标签。</p>
+<p class="note">缩放与ROI仅影响显示，保存原图1920×1080像素坐标。血管模式可在任一帧点标，记录每个点的来源图；导丝模式只在首/中/末关键帧点标。旧 A/B 不会自动转成四点。</p>
+</div></details>
+<div class="bar"><button id="prev-case">上一窗口</button><select id="case-picker" aria-label="窗口"></select><button id="next-case">下一窗口</button><span id="progress"></span></div>
+<div class="bar"><button id="anchor">首帧 · 必看</button><button id="middle">中间 · 选填</button><button id="end">末帧 · 必看</button><button id="play">播放</button><input id="slider" aria-label="时间帧" type="range" min="0" value="0"><span id="frame-state"></span></div>
+<p id="context-note"></p><div class="views" id="views"></div>
+<details><summary>既有人审说明（只读，不重标类别）</summary><p id="old-label"></p></details>
+<div class="footer"><label id="window-notes">本窗口补充说明<textarea id="notes" placeholder="例如：Top末帧模糊，无法保证是同一尖端"></textarea></label><div class="bar"><label>标注人 <input id="reviewer" type="text" placeholder="姓名或缩写"></label><button id="save" class="primary">保存固定血管四点</button><button id="save-next">保存并到下一窗口</button><span id="dirty"></span></div><div id="message" class="message"></div></div>
+</main>
+<script>
+const schema='real10_sparse_wire_correspondence_v2', views=['side','top'], referencePoints=['p0','p1','pl','pr'];
+const $=id=>document.getElementById(id);
+const pointNames={wire:'导丝点 W',p0:'P0 · 主干起点',p1:'P1 · 分支点前',pl:'PL · 左支一点',pr:'PR · 右支一点'};
+const pointLabels={wire:'W',p0:'P0',p1:'P1',pl:'PL',pr:'PR'};
+const colors={wire:'#fa505e',p0:'#ffd04b',p1:'#4fe2c0',pl:'#50b9ff',pr:'#dc8aff'};
+const statusNames={unreviewed:'未标注',visible:'可定位（点击图像）',ambiguous:'可见但无法定位',not_visible:'不可见 / 无可靠特征'};
+let catalog,reference,caseIndex=0,frame=0,caseData,annotation,mode='reference';
+let dirtyWire=false,dirtyReference=false,playing=false,timer,loadToken=0,saving=false;
+const ui={},images={},loaded={};
+function say(text,error=false){$('message').textContent=text;$('message').className='message'+(error?' error':'');}
+function dirty(){return dirtyWire||dirtyReference;}
+function updateDirty(){const names=[];if(dirtyReference)names.push('血管四点');if(dirtyWire)names.push('本窗导丝');$('dirty').textContent=names.length?names.join('、')+'尚未保存':'';$('dirty').className='changed';}
+function changed(){if(mode==='reference')dirtyReference=true;else dirtyWire=true;updateDirty();}
+async function api(path,options){const r=await fetch(path,options),j=await r.json();if(!r.ok)throw Error(j.error||r.status);return j;}
+function stop(){playing=false;clearTimeout(timer);$('play').textContent='播放';}
+function isKey(){return caseData.keyframe_indices.includes(frame);}
+function activePoints(){return mode==='reference'?referencePoints:['wire'];}
+function point(v,p){return p==='wire'?annotation.views[v].frames[String(frame)]?.wire:reference.views[v].points[p];}
+function canEdit(v){return loaded[v]&&!playing&&!saving&&(mode==='reference'||isKey());}
+function invalidate(v){if(mode==='reference'){reference.views[v].confirmed=false;ui[v].referenceConfirmed.checked=false;}else{annotation.views[v].correspondence_confirmed=false;ui[v].confirmed.checked=false;}}
+function updateSave(){const disabled=playing||saving||!views.every(v=>loaded[v]);$('save').disabled=disabled;$('save-next').disabled=disabled||mode==='reference'||caseIndex===catalog.manifest.cases.length-1;}
+function buildView(v){
+ const section=document.createElement('section');section.className='card';section.innerHTML=`<h2>${v==='side'?'Side':'Top'} <span id="${v}-time" class="time"></span></h2>
+ <div class="identity wire-only"><label>跟踪对象<select id="${v}-feature"><option value="">请选择</option><option value="tip">导丝尖端（优先）</option><option value="distinct_shaft_landmark">可辨识的同一材料标记</option><option value="untrackable">本窗该视角无法建立导丝对应</option></select></label><input id="${v}-description" type="text" aria-label="${v}导丝特征说明" placeholder="材料标记必须描述；尖端可不填"></div>
+ <div class="bar"><label>显示 <select id="${v}-crop"><option value="roi">血管局部</option><option value="full">全图</option></select></label><label>缩放 <select id="${v}-zoom"><option value="fit">适合宽度</option><option value="1">1:1 原图</option><option value="2">2倍</option></select></label><label class="wire-only"><input id="${v}-overlay" type="checkbox" checked>显示固定路径</label><a id="${v}-raw" target="_blank" rel="noopener">打开原图</a></div>
+ <div class="viewport"><canvas id="${v}-canvas" aria-label="${v}点标画布"></canvas></div>
+ <div id="${v}-points"></div>
+ <div class="reference-only"><input id="${v}-reference-notes" type="text" aria-label="${v}固定参照说明" placeholder="可选：哪一点不清楚？参照是否适用于全部窗口？"><label><input type="checkbox" id="${v}-reference-confirmed">已核对：四点定义正确，适用于本批固定相机与血管画面</label></div>
+ <label class="wire-only"><input type="checkbox" id="${v}-confirmed">已核对：首末帧是同一导丝尖端 / 材料标记</label>`;
+ $('views').append(section);
+ ui[v]={selected:'p0',canvas:$(v+'-canvas'),feature:$(v+'-feature'),description:$(v+'-description'),confirmed:$(v+'-confirmed'),referenceConfirmed:$(v+'-reference-confirmed'),referenceNotes:$(v+'-reference-notes'),crop:$(v+'-crop'),zoom:$(v+'-zoom'),overlay:$(v+'-overlay')};
+ for(const p of [...referencePoints,'wire']){
+  const row=document.createElement('div');row.className='point-row';row.id=v+'-'+p+'-row';row.innerHTML=`<button id="${v}-${p}-pick" style="border-left:5px solid ${colors[p]}">${pointNames[p]}</button><select id="${v}-${p}-status" aria-label="${v} ${pointNames[p]}状态"></select><span class="coords" id="${v}-${p}-xy"></span>`;$(v+'-points').append(row);
+  for(const [value,label] of Object.entries(statusNames))$(v+'-'+p+'-status').add(new Option(label,value));
+  $(v+'-'+p+'-pick').onclick=()=>{ui[v].selected=p;updateControls(v);};
+  $(v+'-'+p+'-status').onchange=()=>{
+   if(!canEdit(v))return;const s=$(v+'-'+p+'-status').value,old=point(v,p);
+   if(s==='visible'&&!old.xy){ui[v].selected=p;say('请在图像上点出位置，没有坐标不会记为可定位。');updateControls(v);return;}
+   const value={status:s,xy:s==='visible'?old.xy:null};if(p==='wire')annotation.views[v].frames[String(frame)].wire=value;else reference.views[v].points[p]={...value,source:s==='visible'?old.source:null};
+   invalidate(v);changed();updateControls(v);draw(v);
+  };
+ }
+ ui[v].feature.onchange=()=>{annotation.views[v].feature_type=ui[v].feature.value||null;invalidate(v);changed();};
+ ui[v].description.oninput=()=>{annotation.views[v].feature_description=ui[v].description.value;invalidate(v);changed();};
+ ui[v].confirmed.onchange=()=>{annotation.views[v].correspondence_confirmed=ui[v].confirmed.checked;dirtyWire=true;updateDirty();};
+ ui[v].referenceNotes.oninput=()=>{reference.views[v].notes=ui[v].referenceNotes.value;invalidate(v);changed();};
+ ui[v].referenceConfirmed.onchange=()=>{reference.views[v].confirmed=ui[v].referenceConfirmed.checked;dirtyReference=true;updateDirty();};
+ ui[v].crop.onchange=()=>draw(v);ui[v].zoom.onchange=()=>draw(v);ui[v].overlay.onchange=()=>draw(v);
+ ui[v].canvas.onclick=e=>{
+  if(!canEdit(v))return;const p=ui[v].selected;
+  if(p==='wire'&&!['tip','distinct_shaft_landmark'].includes(annotation.views[v].feature_type)){say('请先选择导丝跟踪对象；看不清时记缺失，不要猜。',true);return;}
+  const box=ui[v].canvas.getBoundingClientRect(),r=currentROI(v);
+  const x=Math.max(0,Math.min(1919,r[0]+(e.clientX-box.left)*ui[v].canvas.width/box.width));
+  const y=Math.max(0,Math.min(1079,r[1]+(e.clientY-box.top)*ui[v].canvas.height/box.height));
+  const value={status:'visible',xy:[Math.round(x*10)/10,Math.round(y*10)/10]};
+  if(p==='wire')annotation.views[v].frames[String(frame)].wire=value;
+  else reference.views[v].points[p]={...value,source:{case_id:caseData.id,frame_index:frame}};
+  invalidate(v);changed();const points=activePoints();ui[v].selected=points[Math.min(points.indexOf(p)+1,points.length-1)];updateControls(v);draw(v);
+  say(mode==='reference'?'已记录固定参照；标完两路后保存，其他窗口会复用。':'已记录当前帧导丝 W；记得保存本窗口。');
+ };
+}
+function currentROI(v){return ui[v].crop.value==='roi'?catalog.manifest.display_roi_xyxy[v]:[0,0,1920,1080];}
+function draw(v){
+ if(!loaded[v])return;const canvas=ui[v].canvas,c=canvas.getContext('2d'),r=currentROI(v),w=r[2]-r[0],h=r[3]-r[1];
+ canvas.width=w;canvas.height=h;canvas.style.width=ui[v].zoom.value==='fit'?'100%':(w*Number(ui[v].zoom.value))+'px';canvas.style.height='auto';c.drawImage(images[v],r[0],r[1],w,h,0,0,w,h);
+ const showReference=mode==='reference'||ui[v].overlay.checked;
+ if(showReference){
+  c.setLineDash([10,7]);c.lineWidth=4;
+  for(const [a,b] of [['p0','p1'],['p1','pl'],['p1','pr']]){const pa=point(v,a),pb=point(v,b);if(pa.status!=='visible'||pb.status!=='visible')continue;c.strokeStyle=colors[b];c.beginPath();c.moveTo(pa.xy[0]-r[0],pa.xy[1]-r[1]);c.lineTo(pb.xy[0]-r[0],pb.xy[1]-r[1]);c.stroke();}c.setLineDash([]);
+ }
+ const showPoints=[...(showReference?referencePoints:[]),...(mode==='wire'&&isKey()?['wire']:[])];
+ for(const p of showPoints){const a=point(v,p);if(a.status!=='visible')continue;const x=a.xy[0]-r[0],y=a.xy[1]-r[1];c.strokeStyle=colors[p];c.lineWidth=3;c.beginPath();c.arc(x,y,8,0,Math.PI*2);c.moveTo(x-14,y);c.lineTo(x+14,y);c.moveTo(x,y-14);c.lineTo(x,y+14);c.stroke();c.font='bold 26px sans-serif';c.strokeStyle='#142430';c.lineWidth=5;c.strokeText(pointLabels[p],x+13,y-11);c.fillStyle=colors[p];c.fillText(pointLabels[p],x+13,y-11);}
+}
+function updateControls(v){
+ for(const p of [...referencePoints,'wire']){const key=v+'-'+p,active=activePoints().includes(p);$(key+'-row').hidden=!active;$(key+'-pick').disabled=!canEdit(v);$(key+'-pick').classList.toggle('active',ui[v].selected===p);$(key+'-status').disabled=!canEdit(v);const a=point(v,p)||{status:'unreviewed',xy:null};$(key+'-status').value=a.status;$(key+'-xy').textContent=a.xy?a.xy.map(x=>x.toFixed(1)).join(', '):'—';}
+}
+function updateProgress(){
+ const s=catalog.summary;$('progress').textContent=`已保存导丝：必看帧 ${s.required_images_reviewed}/24 · 同点对 ${s.paired_2d_ready_views}/12`;
+ $('reference-progress').textContent=`已保存四点 ${s.reference_visible_points}/8 · 已确认 ${s.reference_ready_views}/2 路 · v${s.reference_revision}`;
+ catalog.manifest.cases.forEach((c,i)=>{$('case-picker').options[i].textContent=`#${c.ui_index} · ${c.task} · 已看 ${catalog.progress[c.id].required_images_reviewed}/4`;});
+}
+function showMode(){
+ for(const name of ['wire','reference']){document.querySelectorAll('.'+name+'-only').forEach(el=>el.hidden=mode!==name);$('mode-'+name).classList.toggle('active',mode===name);$('mode-'+name).setAttribute('aria-pressed',String(mode===name));}
+ $('window-notes').hidden=mode!=='wire';$('save').textContent=mode==='reference'?'保存固定血管四点':'保存本窗口导丝';$('save-next').hidden=mode!=='wire';
+ $('context-note').textContent=mode==='reference'?'正在编辑全局固定参照：跨帧、跨窗口复用，不需要重复标。':isKey()?'当前只标导丝 W，血管路径为只读参照。':'当前是上下文回放帧；请切到首 / 中 / 末关键帧点标导丝。';
+ for(const v of views){ui[v].selected=mode==='reference'?'p0':'wire';updateControls(v);draw(v);}updateSave();
+}
+async function choose(i){
+ if(dirty()||saving){say('请先保存修改过的血管参照 / 导丝，再切换窗口。',true);$('case-picker').value=caseIndex;return;}
+ stop();caseIndex=Math.max(0,Math.min(catalog.manifest.cases.length-1,i));caseData=catalog.manifest.cases[caseIndex];annotation=structuredClone(catalog.annotations[caseData.id]);$('case-picker').value=caseIndex;frame=0;$('slider').max=caseData.frames.side.length-1;$('notes').value=annotation.notes||'';if(annotation.reviewer)$('reviewer').value=annotation.reviewer;
+ for(const v of views){const a=annotation.views[v];ui[v].feature.value=a.feature_type||'';ui[v].description.value=a.feature_description;ui[v].confirmed.checked=a.correspondence_confirmed;ui[v].referenceConfirmed.checked=reference.views[v].confirmed;ui[v].referenceNotes.value=reference.views[v].notes;}
+ $('old-label').textContent=`旧联合响应：${caseData.human_response}。${caseData.human_notes}`;$('prev-case').disabled=caseIndex===0;$('next-case').disabled=caseIndex===catalog.manifest.cases.length-1;updateDirty();say('');await render();showMode();
+}
+async function render(){
+ const token=++loadToken;$('slider').value=frame;const kind=frame===0?'首帧 · 必看':frame===caseData.frames.side.length-1?'末帧 · 必看':isKey()?'中间关键帧 · 选填':'上下文回放';$('frame-state').textContent=`${frame+1}/${caseData.frames.side.length} · ${kind}`;
+ for(const v of views){loaded[v]=false;updateControls(v);ui[v].canvas.getContext('2d').clearRect(0,0,ui[v].canvas.width,ui[v].canvas.height);}updateSave();
+ await Promise.all(views.map(v=>new Promise(resolve=>{const ref=caseData.frames[v][frame],url=`/image?case=${encodeURIComponent(caseData.id)}&view=${v}&frame=${frame}`;$(v+'-raw').href=url;$(v+'-time').textContent=`${ref.path.split('/').pop()} · +${(ref.time_s-caseData.frames[v][0].time_s).toFixed(3)}s`;const image=new Image();image.onload=()=>{if(token===loadToken){images[v]=image;loaded[v]=true;draw(v);updateControls(v);}resolve();};image.onerror=()=>{if(token===loadToken){stop();say(v+'图像读取失败；当前画面不能标点。',true);}resolve();};image.src=url;})));
+ if(token===loadToken){updateSave();$('context-note').textContent=mode==='reference'?'正在编辑全局固定参照：跨帧、跨窗口复用，不需要重复标。':isKey()?'当前只标导丝 W，血管路径为只读参照。':'当前是上下文回放帧；请切到首 / 中 / 末关键帧点标导丝。';}
+}
+async function save(next=false){
+ if(saving)return;stop();saving=true;const savingMode=mode;updateSave();for(const v of views)updateControls(v);
+ try{
+  if(savingMode==='reference'){
+   reference.reviewer=$('reviewer').value;const r=await api('/api/reference',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(reference)});reference=r.reference;catalog.reference=structuredClone(reference);catalog.summary=r.summary;dirtyReference=false;say('固定四点已追加保存，所有窗口共用；未修改任何导丝点。');
+  }else{
+   if(dirtyReference)throw Error('血管参照有未保存修改，请先切回血管模式保存。');
+   annotation.reviewer=$('reviewer').value;annotation.notes=$('notes').value;const r=await api('/api/annotation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(annotation)});annotation=r.annotation;catalog.annotations[caseData.id]=structuredClone(annotation);catalog.progress[caseData.id]=r.progress;catalog.summary=r.summary;dirtyWire=false;say('本窗导丝已追加保存到annotations_v2.jsonl；旧文件未改。');
+  }
+  updateDirty();updateProgress();
+ }catch(e){say(e.message,true);next=false;}finally{saving=false;updateSave();for(const v of views)updateControls(v);}
+ if(next)await choose(caseIndex+1);
+}
+for(const v of views)buildView(v);
+for(const name of ['wire','reference'])$('mode-'+name).onclick=()=>{if(saving)return;stop();mode=name;showMode();say('');};
+$('case-picker').onchange=()=>choose(Number($('case-picker').value)).catch(e=>say(e.message,true));$('prev-case').onclick=()=>choose(caseIndex-1);$('next-case').onclick=()=>choose(caseIndex+1);
+function gotoFrame(i){if(saving)return;stop();frame=i;render().catch(e=>say(e.message,true));}
+$('anchor').onclick=()=>gotoFrame(0);$('middle').onclick=()=>gotoFrame(caseData.keyframe_indices[1]);$('end').onclick=()=>gotoFrame(caseData.frames.side.length-1);$('slider').oninput=()=>gotoFrame(Number($('slider').value));
+$('play').onclick=async()=>{if(saving)return;if(playing){stop();for(const v of views)updateControls(v);updateSave();return;}playing=true;$('play').textContent='暂停';frame=0;await render();async function tick(){if(!playing)return;if(frame===caseData.frames.side.length-1){stop();for(const v of views)updateControls(v);updateSave();return;}timer=setTimeout(async()=>{if(!playing)return;frame++;await render();tick();},400);}tick();};
+$('save').onclick=()=>save();$('save-next').onclick=()=>save(true);$('notes').oninput=()=>{dirtyWire=true;updateDirty();};
+window.addEventListener('resize',()=>{if(caseData)for(const v of views)draw(v);});window.addEventListener('beforeunload',e=>{if(dirty()){e.preventDefault();e.returnValue='';}});
+(async()=>{catalog=await api('/api/index');if(catalog.schema!==schema)throw Error('页面已更新，但服务仍是旧版；请重启本标注服务后刷新。');reference=structuredClone(catalog.reference);mode=catalog.summary.reference_ready_views===2?'wire':'reference';if(reference.reviewer)$('reviewer').value=reference.reviewer;catalog.manifest.cases.forEach((c,i)=>$('case-picker').add(new Option('#'+c.ui_index,i)));updateProgress();await choose(0);})().catch(e=>say(e.message,true));
+</script>
+</html>

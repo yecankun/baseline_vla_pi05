@@ -1,0 +1,61 @@
+{
+  "root": "D:/PycharmProjects/project_2026/robot_assets/standardized",
+  "robots": [
+    {
+      "name": "piper_no_gripper",
+      "urdf": "D:/PycharmProjects/project_2026/robot_assets/standardized/piper_description/urdf/piper_no_gripper_description.urdf",
+      "loaded": true,
+      "links": 8,
+      "joints": 7,
+      "movable_joints": 6,
+      "movable_joint_names": [
+        "joint1",
+        "joint2",
+        "joint3",
+        "joint4",
+        "joint5",
+        "joint6"
+      ],
+      "mesh_refs": 14,
+      "missing_meshes": []
+    },
+    {
+      "name": "piper_with_gripper",
+      "urdf": "D:/PycharmProjects/project_2026/robot_assets/standardized/piper_description/urdf/piper_description.urdf",
+      "loaded": true,
+      "links": 11,
+      "joints": 10,
+      "movable_joints": 8,
+      "movable_joint_names": [
+        "joint1",
+        "joint2",
+        "joint3",
+        "joint4",
+        "joint5",
+        "joint6",
+        "joint7",
+        "joint8"
+      ],
+      "mesh_refs": 20,
+      "missing_meshes": []
+    },
+    {
+      "name": "elite_ec66",
+      "urdf": "D:/PycharmProjects/project_2026/robot_assets/standardized/elite_description/urdf/ec66_description.urdf",
+      "loaded": true,
+      "links": 9,
+      "joints": 8,
+      "movable_joints": 6,
+      "movable_joint_names": [
+        "joint1",
+        "joint2",
+        "joint3",
+        "joint4",
+        "joint5",
+        "joint6"
+      ],
+      "mesh_refs": 14,
+      "missing_meshes": []
+    }
+  ]
+}

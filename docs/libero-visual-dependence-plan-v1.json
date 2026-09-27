@@ -1,0 +1,59 @@
+{
+  "schema": "libero_visual_dependence_plan_v1",
+  "created_date": "2026-09-13",
+  "authorization_record": "User approved the proposed fixed-checkpoint visual-dependence diagnostic. Execution record, not a digital signature. No new training or policy rollout.",
+  "allowed": {
+    "frozen_checkpoint_evaluation": true,
+    "optimizer_updates": false,
+    "feature_extraction": false,
+    "normalization_refit": false,
+    "checkpoint_selection": false,
+    "policy_rollout": false,
+    "project_data_inspection": false
+  },
+  "seeds": [20260912, 20260913, 20260914],
+  "arms": ["observed_action", "normalized_zero_action"],
+  "conditions": ["clean", "repeat_current", "fixed_train_anchor"],
+  "layout": {
+    "history": 4, "horizon": 3, "views": 2, "visual_dim": 2048,
+    "state_dim": 8, "action_dim": 7, "batch_size": 16,
+    "validation_windows": 500, "checkpoint_step": 200
+  },
+  "anchor": {
+    "selection": "minimum_train_episode_unique_frame_zero",
+    "episode_index": 1312, "frame_index": 0,
+    "source": "unchanged_clean_feature_cache", "fitting": false
+  },
+  "evaluation_order": "per_batch_clean_replay_then_two_interventions",
+  "output": "simulation_output/pi05_libero_visual_dependence_v1",
+  "previous_plan_sha256": "0558af2fc68e5cc8c0a6e869e34fda74782246a35120a871db9e86b3327ca307",
+  "protocol": {
+    "question": "How much do the frozen native world model predictions and actual learned visual residual respond to two fixed changes of history visual inputs, while state/action/task/targets remain unchanged? This is sensitivity, not causal modality attribution.",
+    "repeat_current": "For each validation window repeat its actual latest clean two-view latent across history4. The latest visual skip is unchanged. Earlier history temporal variation is removed, not all visual information.",
+    "fixed_train_anchor": "Use the actual two-view cached latent of min(train_episode_indices)=1312 unique frame0 for every history position in every validation window. No mean fitting, zero feature, validation anchor, future target or observed outcome enters selection. Preserve the same task. This may create OOD visual/state pairings.",
+    "fixed_inputs": "Same original4 validation episodes and all500 history4/horizon3 windows, same state8/action7/task/masks and original clean future visual/state targets. All history masks must remain true; fail closed otherwise. Reuse original train normalization, recomputing train statistics only for unchanged-artifact verification.",
+    "frozen_models": "Keep all6 final200 checkpoints, existing native model/PI0.5 backbone/objective/mixed-head semantics unchanged. Zero-action arm stays exactly zero in normalized coordinates (raw train mean, not physical zero). No optimizer, checkpoint save/selection, extraction or rollout.",
+    "clean_replay": "For each batch, clean input/target/prediction hashes must exactly replay saved final200 before two intervention forwards. After each model all original per-episode/macro/micro clean statistics must also replay before completion. No all-six-before-first-intervention promise; results fail closed on any drift.",
+    "residual_capture": "Temporary read-only visual_residual_head forward hook captures the actual head tensor from the same single inference forward. Remove hook in finally and verify frozen state, identities/versions and full before/after parameter hashes. Bit-exact float32 total prediction equals current visual skip plus captured residual. No subtraction-estimated residual or duplicate forward.",
+    "metrics": "Existing clean-target MAE/RMSE/objective, per-episode/equal-episode macro/window-weighted micro. Separately report clean-to-intervention state-output, total-visual-output, actual-visual-residual, direct-skip and history-input drift: count/sum_abs/sum_sq/max_abs/MAE/RMSE/exact changed scalar count. Promote to float64 before subtraction. Visual total/residual/skip all use broadcast [B,1,3,2,2048]; history uses [B,4,2,2048]. Counts are coordinates, not independent experimental units.",
+    "aggregation": "Episode-equal means then three-seed mean and descriptive population std; report paired target-error absolute/relative changes and per-seed values. Macro RMSE is mean of per-episode RMSE; pooled micro retained separately. Never divide drift magnitudes to claim additive causal shares, because cancellation and float32 rounding occur.",
+    "controls": "All clean drifts zero, repeat-current direct-skip drift zero; persistence repeats each condition latest visual and state residual0, so repeat-current persistence predictions equal clean exactly. Interventions need not force a nonzero learned response to pass.",
+    "storage": "Hold only the current clean batch capture in RAM; save hashes and batch sufficient statistics, no large prediction arrays. 594 learned forwards and99 scored persistence batches; support checks make792 actual persistence helper calls. No new embeddings.",
+    "decision": "Report measured local visual sensitivity without automatically selecting a module, tuning checkpoints, training, making a robustness pass/fail claim, or extending interventions.",
+    "recovery": "Exclusive output, no automatic overwrite/resume/retry. Preserve failure and partial traces; inspect process/status before authorizing another attempt."
+  },
+  "limitations": [
+    "Only4 held-out episodes in one LIBERO task; three optimizer seeds do not add independent trajectories. Existing validation data already informed this diagnostic question. Descriptive results, no significance or unseen generalization claim.",
+    "repeat_current tests only marginal sensitivity to replacing earlier frames with the current frame; adjacent features may already be similar. It does not prove temporal vision unnecessary.",
+    "fixed_train_anchor retains same task/scene constants and may create OOD visual-state combinations. It is not calibrated camera failure, masking, vessel oxidation or removal of every piece of visual information.",
+    "State/action/task remain available. Small state-output drift does not prove visual inputs useless or a robustness module ineffective. Target-error changes and output drift answer different questions.",
+    "Visual output contains a current-feature skip plus learned residual. Component norms are not additive attribution shares; no causal percentage or pure dynamics-error interpretation.",
+    "Unknown PI0.5 pretraining overlap and unverified family independence remain. No policy success, guidewire/Elite/Piper quality, counterfactual ranking, tactile/contact, rotation, formal-readiness or real-system claim."
+  ],
+  "runtime_estimate": "Previous396 learned forwards plus scoring9.76s CPU. This594-forward job adds actual-residual capture and float64 drift statistics, conservatively1-3minutes including hashes, within5minute approved scope. No training/extraction.",
+  "planning_skill_scope": "Experiment protocol/metrics/ablations/limits checklist for engineering diagnostic, not a manuscript Results/Discussion section; no fabricated mock results.",
+  "input_sha256": {
+    "tools/run_pi05_libero_visual_dependence.py": "826742753e1c6c3aac4cb2abdc7b55b0584f0f7a0b6d7400b151f74981ed78f1",
+    "tools/pi05_libero_visual_dependence.py": "fe9dbe6c4f2f2311434b180952213a30bc600ac1cd8ea8945b918a05c42f44d5"
+  }
+}
