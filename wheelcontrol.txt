@@ -1,0 +1,2 @@
+使用udp向192.168.5.8:8888发送json数据action字段包括forward, backward, turn_left, turn_right; 在forward和backward模式下value指推进时长，单位ms，在turn_left和turn_right下value指旋转角度，单位度. 每次发送前进/后退一步,旋转value度
+{"command":"move","parameters":{"action":"forward","value":1000}}

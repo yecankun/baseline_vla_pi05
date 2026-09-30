@@ -12,6 +12,35 @@ Algorithm state and commands live in `docs/algorithm-track-handoff.md` and
 `docs/algorithm-track-commands.md`. Do not mirror algorithm experiment history
 here; keep only the shared data/action interface needed by the data track.
 
+## Research Archive And Latest Feeder Note (2026-09-30)
+
+用户要求：录像、采集与权重合计超过 1 GB 时，上传最近这次左分支任务的完整现存
+记录 ZIP，并默认上传最新 TXT。按文件逻辑大小统计：项目内视频 0.942648 GB、
+图像/采集数组 5.325020 GB、权重扩展名文件（含模型缓存）8.834806 GB，共
+15.102474 GB；软链接引用的外置权重按 inode 去重后另有 52.662529 GB。
+含外置引用合计 **67.765002 GB**，故未上传全部历史采集与权重。
+
+- [研究归档 Release](https://github.com/yecankun/baseline_vla_pi05/releases/tag/left-branch-research-20260930)
+- [下载 ZIP](https://github.com/yecankun/baseline_vla_pi05/releases/download/left-branch-research-20260930/left_branch_run_20260929-20260930.zip)
+- 文件大小 **1,463,700,120 bytes**（1.464 GB），含 19 个阶段目录、2,956 个原文件
+  及 4 个索引/说明文件；保留原始路径及字节，不转码或缩小图像。全包 CRC 检查通过。
+- SHA-256：`3c67c10f1631ee41b3677b41f4e35dcd3d9035af89c1db38ae478204b30ca7b5`。
+  Release 附带 `SHA256SUMS`、`README.txt`、`manifest.json` 和 `recordings.csv`。
+- 归档代码基准为 `46ef6999f1d9a6b448ca6f357432ded584e19cea`。本地包位于
+  `simulation_output/research_archive_20260930/`，原实验目录全部保留。
+
+范围从 9 月 29 日初始检查、首次有现场确认的 16:49 递丝，经隔夜暂停和 9 月 30 日
+恢复/磁引导，到 12:50:41 最后递丝、12:54 停止核验及 12:55:48 到达确认记录。
+**完整汇集现存记录，不是全程连续录像**：等待、隔夜及部分人工操作没有录制，
+不能独立证明首次跨过血管入口的准确瞬间。`recordings.csv` 索引 33 段逐帧时间戳、
+2,260 条双相机帧记录；早期照片和其他采集元数据另外保留。现有剪辑与原录像可能
+重复，不能作为相互独立的研究样本。终点仍仅按现场确认，不增加精确误差或模型成功声明。
+
+最新原始 TXT 为根目录 **[wheelcontrol.txt](../wheelcontrol.txt)**，修改时间
+2026-09-30 13:16:44，已原样纳入版本管理和 ZIP。它描述 `.8:8888` 与
+forward/backward 的 `value` 为推进时长（ms），属于任务完成后的新说明；不能据此
+改写本次实际使用 `.13/.5` 和固定步长的记录。归档过程中没有驱动设备或修改协议实现。
+
 ## Current: Left Target Reached — Operator Confirmed, Devices Stopped (2026-09-30 12:54)
 
 当前 **`simulation_output/left_magnet_only_20260930_120439/`**，简称 M。
