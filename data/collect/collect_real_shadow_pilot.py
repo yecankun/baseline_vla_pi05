@@ -1612,7 +1612,7 @@ def main() -> None:
         action="store_true",
         help="Actually command the replacement UDP guidewire feeder device.",
     )
-    parser.add_argument("--feeder-host", default="192.168.5.22", help="UDP feeder host.")
+    parser.add_argument("--feeder-host", default="192.168.5.13", help="UDP feeder host.")
     parser.add_argument("--feeder-port", type=int, default=8888, help="UDP feeder port.")
     parser.add_argument(
         "--feeder-step-mm",

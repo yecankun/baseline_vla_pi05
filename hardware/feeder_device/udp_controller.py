@@ -14,7 +14,7 @@ FeederAction = Literal["forward", "backward", "turn_left", "turn_right"]
 
 @dataclass(frozen=True)
 class UdpFeederConfig:
-    host: str = "192.168.5.22"
+    host: str = "192.168.5.13"
     port: int = 8888
     timeout_s: float = 0.2
     encoding: str = "utf-8"
@@ -41,7 +41,7 @@ class UdpFeederDevice:
 
     ``{"command":"move","parameters":{"action":"forward","value":1}}``
 
-    sent over UDP to ``192.168.5.22:8888`` by default. Each ``forward`` or
+    sent over UDP to ``192.168.5.13:8888`` by default. Each ``forward`` or
     ``backward`` packet executes one feeder step. ``value`` is currently used
     only by ``turn_left`` and ``turn_right``.
     """

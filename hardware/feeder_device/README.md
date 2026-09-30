@@ -15,7 +15,7 @@ directory for stable wrappers after the real protocol is confirmed.
 The currently reported real device interface is UDP JSON:
 
 ```text
-target: 192.168.5.22:8888/udp
+target: 192.168.5.5:8888/udp (updated by the operator, 2026-09-30)
 payload: {"command":"move","parameters":{"action":"forward","value":1}}
 ```
 
@@ -32,28 +32,33 @@ Each `forward` or `backward` packet executes one feeder step. `value` is
 currently meaningful for `turn_left` and `turn_right`, where it represents the
 rotation angle in degrees.
 
+For the 2026-09-30 bench run, the operator reported a fixed 20 mm forward
+step; `forward.value` does not adjust that distance. The CLI retains the
+historical `192.168.5.13` default, so pass `--host 192.168.5.5` explicitly
+for the current device, as in the examples below.
+
 Dry-run one forward packet:
 
 ```bash
-python -m hardware.feeder_device.probe_udp_feeder_device --action forward
+python -m hardware.feeder_device.probe_udp_feeder_device --host 192.168.5.5 --action forward
 ```
 
 Actually send one forward packet:
 
 ```bash
-python -m hardware.feeder_device.probe_udp_feeder_device --action forward --execute
+python -m hardware.feeder_device.probe_udp_feeder_device --host 192.168.5.5 --action forward --execute
 ```
 
 Actually send one backward packet:
 
 ```bash
-python -m hardware.feeder_device.probe_udp_feeder_device --action backward --execute
+python -m hardware.feeder_device.probe_udp_feeder_device --host 192.168.5.5 --action backward --execute
 ```
 
 Rotate left by 15 degrees:
 
 ```bash
-python -m hardware.feeder_device.probe_udp_feeder_device --action turn_left --value 15 --execute
+python -m hardware.feeder_device.probe_udp_feeder_device --host 192.168.5.5 --action turn_left --value 15 --execute
 ```
 
 ## Current Raw Evidence

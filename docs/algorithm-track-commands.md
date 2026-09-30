@@ -5,13 +5,36 @@ Current execution state and active experiment selection are owned by
 section here; dated results and commands below retain their original scope.
 This command file does not independently authorize a new training/evaluation run.
 
-Last updated: 2026-09-23
+Last updated: 2026-09-29
 
 This file contains current commands for the algorithm innovation / VLA track.
 Simulation collection, real collection, and hardware commands remain in
 `docs/commands.md` and the data-track documents.
 
-## Current: Frozen Temporal Dependence Probe Completed (2026-09-23)
+## Current: Reasoning Review V1 Completed Offline (2026-09-29)
+
+当前项目本机根目录：`/media/zsw/SSD1T/robotic_llm/baseline_vla_pi05/project_2026`。
+本轮使用系统`python3`，不需要模型环境、API密钥或设备连接。
+已有结果：`simulation_output/real10_reasoning_review_v1/index.html`和`summary.png`。
+完整结论见`docs/algorithm-real10-reasoning-review-results-20260929.md`。
+
+已执行：
+
+```bash
+python3 -B tools/review_real10_reasoning.py prepare
+# 当前会话查看packets.jsonl和before图，真实提交reviews.jsonl后才执行score。
+python3 -B tools/review_real10_reasoning.py score
+python3 -B tools/report_real10_reasoning_review.py
+python3 -B -m unittest discover -s tools -p test_real10_reasoning_review.py -v
+```
+
+16候选已完整审核和统计，3项必要测试通过。prepare拒绝覆盖现有输出，score拒绝
+覆盖已完成统计。若另做研究，必须使用独立`--out`；不得复制本次建议冒充新模型
+评估。若准备后中断，可直接继续完成同目录reviews.jsonl；score前须一次覆盖全部
+16条且顺序一致。该入口仅汇总实际代理建议，不含自动LLM/API调用或硬件执行。
+无需用户补跑当前实验；下一步缺少新片段和独立任务标签，见协议的证据边界。
+
+## Deferred: Frozen Temporal Dependence Probe Completed (2026-09-23)
 
 固定入口tools/probe_real10_region_temporal_dependence.py与协议
 docs/algorithm-real10-region-temporal-protocol-20260923.md。源为

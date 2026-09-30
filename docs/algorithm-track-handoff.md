@@ -1,6 +1,6 @@
 # Algorithm Track Handoff
 
-Last updated: 2026-09-23
+Last updated: 2026-09-29
 
 This document is the execution handoff for the algorithm innovation / VLA
 track only. It owns OpenPI, PI05, LeRobot model integration, mixed action heads,
@@ -11,7 +11,37 @@ collection, dataset acceptance, or hardware conclusions. Necessary cross-track
 reads and user-authorized cross-track edits follow `AGENTS.md`; evidence and
 shared-interface gates remain in force.
 
-## Current: Frozen Temporal Dependence Probe — Region Gain Is Not Yet A Dynamics Gain (2026-09-23)
+## Current: Reasoning Review V1 Completed Offline — No Added Benefit Established (2026-09-29)
+
+用户要求验证“推理审核 + π0.5 / Real10”的第一版。已完成4次9月24日现场模型运行、
+全部16个候选的离线回溯审核；排除固定路径替代模型的运行。当前Codex会话实际查看
+16张before双视角并提交结构化建议，随后读取执行结果，并查看4张代表after图。
+这是会话代理审核，不是自动API审核器；没有连接硬件、重新推理或训练。
+
+结果：继续候选3、暂停核查12、补充观察1；简单规则继续3、暂停13，建议一致14/16。
+原程序15次下发、15次到位、1次递丝发包，物理递丝完成未知。12次暂停均能由参考
+机械臂路径方向规则复现。R02推理保留微小反向候选，但原控制器因合并时限/过期
+原因未下发；R14推理因前一feed候选与缺失控制器历史请求补观察，规则保留候选。
+两处差异没有逐步任务标签证明谁更好；时序规则也可能实现R14的检查。
+
+所有预览中均未能可靠判读导丝尖端/推进量。误拦率、漏检率、任务成功率收益为null。
+审核者已读历史总结、可见规则结果和记录路径参考；不能称为盲测或独立泛化评估。
+字段隔离检查通过不能消除会话先验。后续shadow步骤不是假设早期拦截后的反事实轨迹。
+**结论：离线审核流程可运行，尚未建立推理相对简单规则的额外收益；不升级自动控制。**
+
+入口：`tools/review_real10_reasoning.py`（prepare/score）、
+`tools/report_real10_reasoning_review.py`（中文结果图），3项证据隔离/覆盖测试通过。
+协议与完整结论：`docs/algorithm-real10-reasoning-review-protocol-20260929.md`、
+`docs/algorithm-real10-reasoning-review-results-20260929.md`。
+工件：`simulation_output/real10_reasoning_review_v1/`，含输入、真实审核建议、统计、
+index.html、summary.png和视觉核查。原日志/图像/模型/控制器未改；来源size/mtime核查通过。
+实现与本次离线验证完成；visual_status=viewed_not_accepted，用户接受pending。
+
+下一步证据需求：未见过的新片段、可辨识导丝头段、实际递丝busy/完成反馈和现场人员
+逐步任务标签；同信息规则/推理先锁建议再揭示标签。本轮未启动新采集、API调用、
+训练或实机动作。此前首帧静态/时序配对实验仍未执行，当前不自动恢复该研究支线。
+
+## Deferred: Frozen Temporal Dependence Probe — Region Gain Is Not Yet A Dynamics Gain (2026-09-23)
 
 用户批准首帧/末帧重复诊断。独立入口tools/probe_real10_region_temporal_dependence.py，
 协议docs/algorithm-real10-region-temporal-protocol-20260923.md，输出

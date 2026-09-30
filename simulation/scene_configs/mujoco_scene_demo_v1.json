@@ -1,0 +1,15 @@
+{
+  "purpose": "Diagnostic simulation demo; not a recovered or calibrated lab scene",
+  "provenance": "Robot base poses use mujoco_guided_wire_env.py defaults; vessel_scale follows docs/commands.md. Joint seed is from the saved realalign_axis_v2_e2_spatial_dabc_pilot_v1 first simulation sample.",
+  "assets_root": "robot_assets/standardized",
+  "vessel": "utils/interface/model/0422.stl",
+  "vessel_scale": 0.077,
+  "piper_urdf": "piper_description/urdf/piper_description.urdf",
+  "elite_urdf": "elite_description/urdf/ec66_description.urdf",
+  "piper_pose": [-0.28, -0.137, -0.08, 0, 0, 0],
+  "elite_pose": [-0.294, 0.133, -0.08, 0, 0, 3.141593],
+  "piper_tool_link": "gripper_base",
+  "elite_tool_link": "flan",
+  "piper_joints": {"joint1": 0, "joint2": 0.628, "joint3": -0.013, "joint4": 0.321, "joint5": 0.289, "joint6": 0.209, "joint7": 0.003, "joint8": -0.002},
+  "elite_joints": {"joint1": 2.188643, "joint2": -1.766273, "joint3": 1.996657, "joint4": -1.755801, "joint5": 1.64061, "joint6": 0.546288}
+}

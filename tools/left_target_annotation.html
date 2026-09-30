@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>导丝尖端与左端目标定位</title>
+<style>
+body{margin:24px;font:17px/1.7 sans-serif;color:#16334a;background:#f2f5f8}
+h1{font-size:26px}section{background:white;padding:18px;margin:20px 0;border-radius:12px}
+canvas{width:100%;height:auto;display:block;cursor:crosshair;background:#dce2e7}
+button,select{font:inherit;padding:8px 12px;margin:5px;cursor:pointer}button{background:#e4eef7;border:1px solid #83a6c2;border-radius:7px}
+.toolbar{position:sticky;top:0;background:#fff;padding:8px;z-index:2;border-bottom:2px solid #adc5d8}
+.status{font-weight:bold;color:#075f40}.view{overflow:auto}.labels{min-height:28px}.note{color:#644b10}
+</style>
+<h1>标记当前导丝尖端和左端出口</h1>
+<p>先看 Side 左侧相机：选择“导丝尖端”并点击尖端，再选择“左端目标出口”并点击目标位置。Top 可补充同一点的另一视角。</p>
+<p class="note">这是固定拍摄的原图。若现场位置或相机已改变，请勿在旧图上标记。看不清的位置请注明“看不清”，不要猜测。</p>
+<div class="toolbar"><label>正在标记：<select id="point"><option value="tip">导丝尖端</option><option value="target">左端目标出口</option></select></label>
+<label>显示：<select id="scale"><option value="fit">适应窗口</option><option value="full">原始大小，可横向滚动</option></select></label>
+<button id="save">保存标记</button><span id="result" class="status">标记不会触发设备运动</span></div>
+<section><h2>Side · 左侧相机（主视角）</h2><div class="view"><canvas id="side" width="1920" height="1080"></canvas></div><div id="side-labels" class="labels"></div><button data-role="side" data-action="missing">此图看不清当前所选位置</button><button data-role="side" data-action="clear">撤销当前所选位置</button></section>
+<section><h2>Top · 右侧相机（补充视角）</h2><div class="view"><canvas id="top" width="1920" height="1080"></canvas></div><div id="top-labels" class="labels"></div><button data-role="top" data-action="missing">此图看不清当前所选位置</button><button data-role="top" data-action="clear">撤销当前所选位置</button></section>
+<script>
+const prefix='__PREFIX__';
+const views={}, images={}, roles=['side','top'];
+let edited=false;
+const names={tip:'导丝尖端',target:'左端目标出口'};
+function draw(role){
+ const canvas=document.getElementById(role),ctx=canvas.getContext('2d');
+ if(!images[role].complete||!images[role].naturalWidth)return;
+ ctx.clearRect(0,0,1920,1080);ctx.drawImage(images[role],0,0);
+ for(const name of ['tip','target']){const p=views[role][name];if(p.status!=='visible')continue;
+  const [x,y]=p.xy;ctx.strokeStyle=name==='tip'?'#00f1ff':'#ff36df';ctx.fillStyle=ctx.strokeStyle;ctx.lineWidth=4;
+  ctx.beginPath();ctx.arc(x,y,13,0,Math.PI*2);ctx.moveTo(x-22,y);ctx.lineTo(x+22,y);ctx.moveTo(x,y-22);ctx.lineTo(x,y+22);ctx.stroke();
+  ctx.font='bold 25px sans-serif';ctx.fillText(names[name],Math.min(x+26,1720),Math.max(35,y-22));
+ }
+ document.getElementById(role+'-labels').textContent=['tip','target'].map(n=>names[n]+'：'+({visible:'已标记',not_visible:'看不清',unreviewed:'未标记'}[views[role][n].status])).join('　');
+}
+for(const role of roles){
+ views[role]={tip:{status:'unreviewed',xy:null},target:{status:'unreviewed',xy:null}};
+ images[role]=new Image();images[role].onload=()=>draw(role);images[role].src=prefix+'/'+role+'.jpg';
+ document.getElementById(role).onclick=e=>{
+  if(!images[role].naturalWidth)return;
+  edited=true;
+  const rect=e.currentTarget.getBoundingClientRect(), name=document.getElementById('point').value;
+  const x=Math.min(1919.999,Math.max(0,(e.clientX-rect.left)*1920/rect.width));
+  const y=Math.min(1079.999,Math.max(0,(e.clientY-rect.top)*1080/rect.height));
+  views[role][name]={status:'visible',xy:[Math.min(1919.9,Math.round(x*10)/10),Math.min(1079.9,Math.round(y*10)/10)]};draw(role);
+  document.getElementById('result').textContent='有新标记，尚未保存';
+ };
+}
+for(const b of document.querySelectorAll('button[data-role]'))b.onclick=()=>{
+ edited=true;
+ const name=document.getElementById('point').value,role=b.dataset.role;
+ views[role][name]={status:b.dataset.action==='missing'?'not_visible':'unreviewed',xy:null};draw(role);
+ document.getElementById('result').textContent='有新标记，尚未保存';
+};
+document.getElementById('scale').onchange=e=>{for(const role of roles)document.getElementById(role).style.width=e.target.value==='full'?'1920px':'100%';};
+document.getElementById('save').onclick=async()=>{
+ const button=document.getElementById('save');button.disabled=true;
+ try{const r=await fetch(prefix+'/annotation',{method:'POST',headers:{'Content-Type':'application/json','X-Annotation-Key':prefix.slice(1)},body:JSON.stringify({views})});
+  if(!r.ok)throw Error(await r.text());const data=await r.json();document.getElementById('result').textContent=data.message;
+ }catch(e){document.getElementById('result').textContent='未保存：'+e.message;}finally{button.disabled=false;}
+};
+fetch(prefix+'/annotation',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(saved=>{
+ if(!saved||edited)return;
+ for(const role of roles){views[role]=saved.views[role];draw(role);}
+ document.getElementById('result').textContent=saved.initial_reference?'目标沿用前次标记；请补标当前尖端后保存':'已恢复保存的标记（第 '+saved.revision+' 版），设备没有动作';
+}).catch(()=>{});
+</script>
+</html>

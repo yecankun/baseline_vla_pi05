@@ -68,10 +68,11 @@ def action_plan(prediction, pose, max_step_mm, *, translation_gain=1.0):
 
 def robot_ready(ec):
     values = {"state": ec.state, "mode": ec.mode, "servo": ec.servo_status,
-              "synchronized": ec.sync_status, "estop": ec.estop_status}
+              "synchronized": ec.sync_status, "estop": ec.estop_status,
+              "precise_position": ec.get_servo_precise_position_status(is_block=False)}
     if (values["state"] != ec.RobotState.STOP or values["mode"] != ec.RobotMode.REMOTE
             or values["servo"] not in (True, 1) or values["synchronized"] not in (True, 1)
-            or values["estop"] != 0):
+            or values["estop"] != 0 or values["precise_position"] != 1):
         raise RuntimeError(f"Elite is not ready; no automatic mode/servo/alarm changes: {values}")
     return {key: str(value) for key, value in values.items()}
 
@@ -348,7 +349,7 @@ def main():
     parser.add_argument("--max-step-mm", type=float, default=1.0,
                         help=f"operator-selected translation norm cap in mm; software ceiling {MAX_DEMO_STEP_MM:g}")
     parser.add_argument("--speed", type=float, default=5.0, help="joint speed percent, not mm/s")
-    parser.add_argument("--feeder-host", default="192.168.5.10")
+    parser.add_argument("--feeder-host", default="192.168.5.13")
     parser.add_argument("--feeder-local-host", default="192.168.5.11")
     parser.add_argument("--feeder-adapter", type=Path, default=Path(
         "/home/zsw/PycharmProjects/real_collection/hardware/feeder_device/udp_controller.py"))

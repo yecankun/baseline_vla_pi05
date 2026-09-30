@@ -417,7 +417,7 @@ def main():
     parser.add_argument("--min-interval-s", type=float, default=2.0)
     parser.add_argument("--max-distance-from-home-mm", type=float, default=10.0)
     parser.add_argument("--after-feed", choices=("continue", "stop"), default="continue")
-    parser.add_argument("--feeder-host", default="192.168.5.10")
+    parser.add_argument("--feeder-host", default="192.168.5.13")
     parser.add_argument("--feeder-local-host", default="192.168.5.11")
     parser.add_argument("--feeder-adapter", type=Path, default=Path(
         "/home/zsw/PycharmProjects/real_collection/hardware/feeder_device/udp_controller.py"))

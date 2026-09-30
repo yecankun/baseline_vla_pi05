@@ -14,7 +14,7 @@ from .udp_controller import UdpFeederConfig, UdpFeederDevice, build_udp_move_pay
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--host", default="192.168.5.22")
+    parser.add_argument("--host", default="192.168.5.13")
     parser.add_argument("--port", type=int, default=8888)
     parser.add_argument(
         "--action",

@@ -88,10 +88,18 @@ def worker_main(args):
     def send(value):
         print(json.dumps(value, allow_nan=False), file=protocol_out, flush=True)
 
-    # Model/library prints must not corrupt the JSON-lines reply stream.
-    with redirect_stdout(sys.stderr):
-        from real10_pi05_policy import Real10PI05Policy
-        model = Real10PI05Policy(args.elite_checkpoint, args.piper_checkpoint, device=args.device)
+    # Optional diagnostic traces go only to worker.log, never protocol stdout.
+    if args.startup_trace:
+        import faulthandler
+        faulthandler.dump_traceback_later(30, repeat=True, file=sys.stderr)
+    try:
+        # Model/library prints must not corrupt the JSON-lines reply stream.
+        with redirect_stdout(sys.stderr):
+            from real10_pi05_policy import Real10PI05Policy
+            model = Real10PI05Policy(args.elite_checkpoint, args.piper_checkpoint, device=args.device)
+    finally:
+        if args.startup_trace:
+            faulthandler.cancel_dump_traceback_later()
     send({"kind": "ready", "version": VERSION, "pid": os.getpid(), "metadata": model.metadata})
     for line in sys.stdin:
         request_id = None
@@ -124,6 +132,8 @@ class ModelProcess:
         command = [str(args.model_python), "-B", "-u", str(Path(__file__).resolve()), "--worker",
                    "--elite-checkpoint", str(args.elite_checkpoint),
                    "--piper-checkpoint", str(args.piper_checkpoint), "--device", args.device]
+        if getattr(args, "startup_trace", False):
+            command.append("--startup-trace")
         try:
             self.process = subprocess.Popen(command, cwd=ROOT, env=env, stdin=subprocess.PIPE,
                                             stdout=subprocess.PIPE, stderr=self.log,
@@ -135,7 +145,7 @@ class ModelProcess:
         self.reader = threading.Thread(target=self._read, daemon=True)
         self.reader.start()
         try:
-            self.ready = self.receive(120)
+            self.ready = self.receive(getattr(args, "model_load_timeout_s", 120))
             if self.ready.get("kind") != "ready" or self.ready.get("version") != VERSION:
                 raise RuntimeError(f"unexpected worker startup: {self.ready}")
         except Exception:
@@ -406,6 +416,7 @@ def run_client(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument("--startup-trace", action="store_true", help="write model startup stack traces to worker.log every 30 s")
     parser.add_argument("--source", choices=("replay", "live"), default="replay")
     parser.add_argument("--input-json", type=Path, help="same observation-only JSON as real10_pi05_policy.py")
     parser.add_argument("--out", type=Path)

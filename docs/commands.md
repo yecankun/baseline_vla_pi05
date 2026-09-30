@@ -1,11 +1,504 @@
 # Commands
 
-Last updated: 2026-07-17
+Last updated: 2026-09-30
 
 This file keeps copyable commands for the data/simulation/real-collection
 track and retains older non-VLA commands for provenance. Current algorithm
 innovation commands live in `docs/algorithm-track-commands.md`; the pre-split
 Pi-Style/OpenPI/PI05 command block is archived under `docs/archive/`.
+
+## Current: Left Target Reached By Onsite Confirmation (2026-09-30 12:54)
+
+最新 M=`simulation_output/left_magnet_only_20260930_120439/`。
+**用户确认“尖端到达目标”，本轮已完成，设备保持停止。不要重放已完成动作。**
+M 共九次机械臂动作，总路径 89.963176 mm；12:50:41 递丝一次，`.5:8888` 回复 ok，
+画面显示向目标所在左分支推进。12:54:08 STOP/REMOTE、位置未变；本阶段无校准/
+清错/重新使能。此前两次退让合计 19.996157 mm 保留为诊断记录。
+
+用户已明确允许模型内沿壁滑行，撤销此前“贴壁必须先解除”的诊断条件，优先到达；
+最终发送基于现场约 30 mm 剩余距离。明显折弯、顶住无进展/错误分支/设备异常仍停止
+后续动作；没有关闭控制器保护或改动原始基准。固定 **20 mm/forward** 是机构规格，
+非尖端位移测量；用户已说明不可改，不再找接收端源码/5 mm 配置。
+
+实况 `http://192.168.5.11:8765/`；最终递丝回放 `http://192.168.5.11:8768/`，
+对比 `/review.png`。M/media_feed3，67 帧/6.7 s，全解码/代表画面/HTTP 白名单已核验。
+结果 M/endpoint_result.json；总表 M/session_result.json；最后停止核验 M/final_verification。
+定位页 `http://192.168.5.11:8770/vbEMVlopVeJCbcJ4wF5jJCmIYc_luARC/` 为本次递丝后固定图。
+用户回复已保存/到达，但服务尚未产生新标记文件；**结果按现场确认记录，不计算精确
+像素/毫米误差**。任务到达验收不等于全部录像或正式训练数据验收。
+
+`follow_marked_tip_http.py` 默认预览，`--execute` 每次仅一条机械臂命令，原始 W
+基准不变，无递丝/归位/自动重试。单段 10 mm/1% 速度、13 mm/3° 监测、姿态 0.5°。
+`--corridor-preview` 用有限 IK 轨迹派生包络，默认原基准仍 31 mm/5°。
+
+- `--align-over-tip`：两路近似水平中心误差均减小；M/lateral_alignment_preview
+  两段有限走廊 92 mm/12°，已完成。
+- `--guidance-review <arm_and_wire_review.json>`：已确认磁响应后向左目标走一步，
+  M/guided_left_ik_preview 两段走廊 112 mm/15°，约 80 mm 整体路线从 B/follow2 起算；
+  两路估计磁铁与尖端侧向差限制 12.5 mm。仅第一段 step7 执行，本轮结束后不重放第二段。
+- `--relieve-wall-contact`：只允许新图像复核净空、明确上壁接触的 +Z 10 mm 单段，
+  M/wall_relief_ik_preview、wall_relief2_ik_preview 分别派生 103/106 mm、14° 原基准
+  包络，半径 3 mm，已各执行一次。到位观察 5 s；不等于已经解除贴壁。
+
+关键检查 M/corridor_checks、lateral_checks、guided_left_checks、wall_relief_checks
+分别 8/9/6/5 项通过。限幅是本次诊断参数，非机械臂硬件最大行程。当前无待执行
+命令；新试验须重新读状态/抓图/定位，历史预览不能作为整段控制脚本重放。
+
+以下为**最后已执行退让的参数记录，不要重跑**。目录已存在会拒绝执行；也不要
+换输出目录重发它。省略执行开关仅说明工具默认行为，并非当前姿态仍匹配旧输入。
+
+```bash
+cd /media/zsw/SSD1T/robotic_llm/baseline_vla_pi05/project_2026
+/media/zsw/SSD1T/conda_piper/envs/sam3/bin/python -B tools/follow_marked_tip_http.py \
+  --axes-dir simulation_output/left_work_pose_20260930_104551/axes \
+  --prior-arm-dir simulation_output/left_magnet_only_20260930_120439/step8_relief \
+  --annotation-before simulation_output/left_resume_20260930_100550/annotation/annotations.jsonl \
+  --annotation-now simulation_output/left_magnet_only_20260930_120439/annotation_after_guidance/annotations.jsonl \
+  --corridor-preview simulation_output/left_magnet_only_20260930_120439/wall_relief2_ik_preview/report.json \
+  --relieve-wall-contact --out simulation_output/left_magnet_only_20260930_120439/step9_relief
+```
+
+各段 `arm_and_wire_review.json` 分开记录运动、磁响应和接触；step9_relief 的
+`physical_review.json` 记录最新允许沿壁后的单次发送依据，`feed_once/report.json`
+记录已执行发送，`feed_once/physical_review.json` 记录本次现场到达。唯一 `feed_once/`
+已使用，不能删除或换目录补发；未经新任务不得再执行下一条固定 20 mm。
+
+## Earlier: New Feeder IP And Manual-Tip Magnet Following (2026-09-30 11:39)
+
+当前输出 `simulation_output/left_feeder_resume_20260930_111102/`。递丝器现为
+**192.168.5.5:8888**，机械臂仍 **192.168.5.66:8055**。11:18:41 首次新地址递丝
+收到 ok，用户确认尖端前进；**20 mm/forward 是操作员提供的机构步长**。
+本轮按新尖端完成两个 10 mm 磁铁跟随段，再于 11:39:21 递丝一次并收到 ok。
+机械臂停止；11:43 新尖端已保存：Side `[897,647]`、Top `[1162.3,880.2]`。剩余直线
+像素距离小于上一轮标记间位移，固定 20 mm 可能越过目标，已询问设备端改为 5 mm。
+用户已确认约 80 mm 后续磁铁路线与工作间距，**不必重问同一现场确认**。接收端源码
+位置无法确认，本机仅找到发送端/旧串口固件；TCP 22/80/443 均拒绝连接。当前仍为
+20 mm/forward，未改为 5 mm，保持设备停止。完整左端尚未完成。已完成动作不要重跑。
+
+最新原始运动 `follow1/report.json`、`follow2/report.json`；本次发送
+`follow2/feed_once/report.json`；总表 `session_result.json`。实况
+**http://192.168.5.11:8765/**；回放 **http://192.168.5.11:8768/**；本次新定位
+**http://192.168.5.11:8769/M0nkQiL3yKM0PToZ5yKhqPwDHjIi_Kct/**。
+
+新工具默认只读预览（输出目录必须未存在）：
+
+```bash
+cd /media/zsw/SSD1T/robotic_llm/baseline_vla_pi05/project_2026
+/media/zsw/SSD1T/conda_piper/envs/sam3/bin/python -B tools/follow_marked_tip_http.py \
+  --axes-dir simulation_output/left_work_pose_20260930_104551/axes \
+  --prior-arm-dir <上一段已完成的机械臂目录> \
+  --annotation-before simulation_output/left_resume_20260930_100550/annotation/annotations.jsonl \
+  --annotation-now <本次新尖端标记.jsonl> --out <新的预览目录>
+```
+
+这是人工尖端 + 局部 Y/Z 响应的诊断动作，不是模型推理或完整血管配准。`--execute`
+每次仅走 10 mm，无递丝；原始工作位累计 31 mm/姿态 0.5°/关节 5°/不下降限制不重置。
+当前已近累计范围，**不能直接重放上式加执行开关完成全程**。11:52 新只读结果
+`remaining_follow_ik_preview/report.json` 给出四段各 10 mm 连续 IK，末段距原工作位
+69.622 mm/最大关节差 8.431°，均未执行；后续需要按已确认路线有界调整累计监测，
+原始基准不重置。递丝小步配置尚未解决。停止时不自动归位/重试，保留唯一输出目录。
+
+一次递丝的离线证据校验入口（不加执行开关，无网络动作）：
+
+```bash
+/media/zsw/SSD1T/conda_piper/envs/sam3/bin/python -B tools/feed_after_verified_arm_http.py \
+  --arm-dir <尚未递丝的已完成且物理复核的机械臂目录> --feeder-host 192.168.5.5
+```
+
+默认 host 仍为历史 `.13`，当前必须显式指定 `.5`。执行时唯一 `feed_once/` 防止重复；
+`--device-recovery-check` 仅用于已有无回复记录、现场报告恢复且 5 分钟内成功网络证据
+支持的一次新尝试，保留原记录。W/left_step 的恢复发送和 B/follow2 的首次发送均已用掉。
+ACK 与物理推进分别记录；不以收到 ok 自动连续发送。馈送关键测试 4 项已通过。
+
+定位服务新增 `--reference-targets <旧 annotations.jsonl>`，只沿用目标、当前尖端初始
+为未审核；服务自行创建 `--out`，不要提前 mkdir。仅标记不触发运动。当前 media、
+annotation 仍是固定白名单服务，不暴露控制器接口或目录列表。
+
+## Earlier: Powered-On Feeder Still Unreachable (2026-09-30 11:14)
+
+新只读结果 `simulation_output/left_feeder_resume_20260930_111102/`。用户已打开设备，
+但两次检查 `.13` 的 ping/ARP 仍失败；本机网口、路由及 `.66` 机械臂正常。已询问
+实际 IPv4、接收绑定地址/端口和网口灯。**本轮没有新增运动或递丝，等网络信息。**
+状态总表 `session_result.json`；原机械臂保持上一段 −Y 10 mm 的完成位置。
+
+为网络恢复后的单次新请求准备了只读校验入口（当前失败记录会被拒绝，不连接硬件）：
+
+```bash
+cd /media/zsw/SSD1T/robotic_llm/baseline_vla_pi05/project_2026
+/media/zsw/SSD1T/conda_piper/envs/sam3/bin/python -B tools/feed_after_verified_arm_http.py \
+  --arm-dir simulation_output/left_work_pose_20260930_104551/axes/left_step \
+  --device-recovery-check <已成功且新鲜的网络检查目录>
+```
+
+仅接受原首次未应答、恢复目录的 `network.json` 中 `.13` ping 成功、ARP 有 MAC 且
+时间不超过 5 分钟；`--execute` 才有一次发送，使用唯一 `feed_after_device_recovery/`
+保留原失败记录、拒绝重复，不移动机械臂。用户已授权设备恢复后的继续工作；需要
+成功连通证据，不能重问同一授权或绕过地址问题。4 项测试通过。`one_feed_submitted_no_reply`
+只代表 socket 提交无回复。当前尚未执行，不重跑历史发送或删除已有目录。
+
+## Earlier: First Work-Pose Left Step And Failed Connectivity (2026-09-30)
+
+最新结果 **`simulation_output/left_work_pose_20260930_104551/`**。用户现场 30 mm 起始
+就位已完成并核验，已在新位置做三轴往返，再沿 **−Y 10 mm** 向左目标引导，实际
+9.998610 mm、两路图像运动与预期一致。10:56:01 提交一次前进包但没有回复，随后
+ping/ARP 未能确认 `.13` 在线；用户未观察这次物理结果。**当前不重发、不继续运动，
+等现场检查递丝器电源/网络/UDP 接收程序，然后只读复查。** 完整左端任务未完成。
+
+实时 **http://192.168.5.11:8765/**；更新后的本轮回放 **http://192.168.5.11:8768/**
+（PID 355202；左向引导和一次未应答递丝观察，中间等待未录像）。总表
+`session_result.json`，动作 `axes/left_step/report.json`，递丝 `axes/left_step/feed_once/report.json`。
+不要重跑已完成命令或删除 `left_step/`、`feed_once/` 后补发。
+
+新单段工具默认预览：
+
+```bash
+cd /media/zsw/SSD1T/robotic_llm/baseline_vla_pi05/project_2026
+/media/zsw/SSD1T/conda_piper/envs/sam3/bin/python -B tools/execute_local_left_step_http.py \
+  --axes-dir <本次新鲜的局部轴测量目录> --annotations <现场人工标记文件>
+```
+
+每个新 axes 只建立一次预览/执行目录；`--execute` 才发一段 −Y 10 mm，无递丝。
+必须从已确认工作位进行有效 Y 方向测量且仍在原位，双相机方向均吻合人工目标，
+否则拒绝；不是模型推理或整条左血管自动导航。已通过 3 项关键拒绝/单位检查。
+
+`CameraRecording` 新增 `save_original_frames=True` 可同时保留每帧两路原始 JPEG，
+本轮递丝前后 86 对原图已保存；默认存储/运动行为不变。本轮脚本的
+`one_feed_sent` 状态只表示 socket 提交，不代表 UDP 到达、ACK 或物理执行。
+
+## Earlier Today: Calibration Ready And Initial Axis Round Trips (2026-09-30)
+
+用户已现场校准并回 REMOTE，实际回读 precision=1。仅重新使能一次伺服后，已于
+10:31 完成三个 10 mm 往返（6 次机械臂动作），最终回起点，STOP / REMOTE、servo/
+sync=true。**不要重跑已完成的启动、校准或往返命令。** 今日递丝 0，完整左端任务
+尚未完成；局部相机响应不是完整场景配准。磁铁工作目标仍为表面在尖端上方 30 mm。
+
+结果目录 `simulation_output/left_resume_20260930_100550/`；总表 `session_result.json`，
+轴运动 `axes/report.json`、`axes/summary.json`、`axes/axis_motion_review.png`。
+实时 **http://192.168.5.11:8765/**；今日往返回放 **http://192.168.5.11:8768/**
+（PID 345341；图片为起点及 Y +10 mm，最终已返回）。
+今日定位 **http://192.168.5.11:8769/S0K2_A6UKaJ-M6Sh0Ju4XMnWBygFoK1L/**
+（PID 346777；`current_for_annotation/` 固定图、`annotation/` 记录）。今天标记已保存
+并复查，网址后加 `review.png` 可查看。**正在等现场将磁铁表面放到尖端上方约 30 mm、
+停止并切回 REMOTE；此间不发运动或递丝。** 就位后重新只读核验，不盲目长距离靠近。
+
+若需要当前状态，只读工具用新目录：
+
+```bash
+cd /media/zsw/SSD1T/robotic_llm/baseline_vla_pi05/project_2026
+/media/zsw/SSD1T/conda_piper/envs/sam3/bin/python -B tools/inspect_elite_readonly.py \
+  --elite-ip 192.168.5.66 --out simulation_output/elite_left_current_readonly
+```
+
+已完成的轴映射工具默认只做 IK 预览，不能把历史 ROI 用作新姿态的当前观测：
+
+```bash
+/media/zsw/SSD1T/conda_piper/envs/sam3/bin/python -B tools/probe_elite_camera_axes.py \
+  --rois simulation_output/left_resume_20260930_100550/axis_tool_rois.json \
+  --out simulation_output/elite_axis_ik_preview_new
+```
+
+`--execute` 才执行三轴各 +10 mm 后返回；1% 关节速度，整轮共用起点范围 TCP 13 mm、
+总姿态角 0.5°、关节 3°；失去相机、就绪或位姿范围则停止，不递丝。4 项关键测试通过。
+`initialize_elite_http.py` 默认只读，4 项初始化检查通过；今天启动已完成。
+`restore_elite_precision_http.py` 的两次远程尝试均被停止，随后由现场恢复，不能继续
+串联或重新运行。10 项校准检查通过；历史失败数值详见数据 handoff。
+
+## Historical Paused Checkpoint And Manual Target Review (2026-09-29)
+
+用户已要求暂停、明天继续。恢复入口为 `docs/data-track-handoff.md` 顶部断点；
+**不要自动运行历史运动或递丝命令**。当前阶段只完成手工标记、被动局部跟踪复核、
+状态查询及三个 10 mm 候选点逆解，没有新增运动或递丝。
+
+实时相机：**http://192.168.5.11:8765/**。
+标记页：**http://192.168.5.11:8767/fNxhoGegadHiJkMAvy2f8KQHMkW7nrZ_/**；
+其后加 `review.png` 可查看放大的中文标记复核图。固定图不代表明天现场状态。
+标记服务 PID 187177；元数据在
+`simulation_output/left_full_route_assessment_20260929/annotation/server.json`。
+`serve_left_target_annotation.py --resume` 只在相同 capture-dir 下恢复 URL 和已保存
+记录；`--review-image` 仅发布指定 PNG。浏览器刷新恢复最新标记，不触发设备动作。
+
+离线复核可复用既有照片，必须指定新的输出目录：
+
+```bash
+cd /media/zsw/SSD1T/robotic_llm/baseline_vla_pi05/project_2026
+MPLCONFIGDIR=/tmp/project2026-mpl /media/zsw/SSD1T/conda_piper/envs/sam3/bin/python -B tools/review_left_target_tracking.py \
+  --annotations simulation_output/left_full_route_assessment_20260929/annotation/annotations.jsonl \
+  --capture simulation_output/left_full_route_assessment_20260929/marked_passive_capture \
+  --out simulation_output/left_marked_review_recheck
+```
+
+已有结果位于 `left_full_route_assessment_20260929/marked_review/`。该工具只复用
+局部图像跟踪，不能把静止点输出当成移动尖端验证或像素—机器人标定。
+
+## Latest Feedback And Media Review (2026-09-29)
+
+用户对最新 10 mm 轮次仍反馈“机械臂仍未见移动”。物理动作记录已标为存在争议，
+不自动重跑运动或递丝。下节数值仍为控制器/电机证据，不是现场接受的物理结果。
+
+相机录像/原图对照页：**http://192.168.5.11:8766/**（PID 180401，
+`tools/serve_hardware_review_media.py`）；实时页 **http://192.168.5.11:8765/**。
+对照服务只提供固定的相机 JPEG 和录像白名单，诊断 JSON/日志不对外提供；媒体
+路径 200、报告与路径穿越 404 已核验。服务信息保存在本轮 `media_server.json`。
+
+## Completed Precision Recovery And Staged Hardware Verification (2026-09-29 17:59)
+
+用户提供校准失败全文并确认 500 mm 工具范围、60 mm 净空、人员离开和按此范围重试。
+17:55:00 重试恢复精确状态 1；17:56:58 机械臂完成一次 10 mm 诊断动作（TCP 回读
+10.002412 mm，画面及电机/编码器配对支持可见运动）；17:58:39 递丝一包返回 ok。
+**本轮动作已完成，不要重跑已完成命令。** 下方 17:49 失败是已恢复的历史记录。
+
+本轮证据：`simulation_output/left_authorized_20260929/index.html`；机械臂录像
+`arm10/motion.mp4`、动作报告 `arm10/report.json`、视觉和电机复核
+`arm10/physical_review.json`、递丝报告 `arm10/feed_once/report.json`。
+
+后续同类分阶段检查使用 `execute_left_coordination_http.py --fixed-step-mm 10
+--arm-only --execute --out <新的输出目录>`；需要重新取得当前现场/相机和控制器状态。
+它只移动一次机械臂并记录双相机和原始反馈，不递丝。独立核验物理动作后，将证据
+来源写入该目录的 `physical_review.json`，才可调用
+`feed_after_verified_arm_http.py --arm-dir <该目录> --execute`，只发送一包、不移动
+机械臂；缺少执行开关时只检查记录。每个机械臂结果只能创建一次 `feed_once/`，
+即使失败也不删除该目录后重跑，以免重复发送。
+
+校准工具的 `--onsite-clearance-60mm` 只适用于已确认工具长度/空间条件的本次方案；
+`--recover-confirmed-calibration-failure` 只清除一次已核对的 7000-C，不能用作通用
+清错。默认监测范围不变，扩大模式参数详见数据 handoff；不是厂商运动范围保证。
+9 项校准、8 项协同、3 项分阶段递丝检查通过。当前已精确，不需要再次校准。
+
+## Authorized Calibration Attempt Stopped (2026-09-29 17:49)
+
+用户已明确授权校准和机械臂/递丝，17:47:35 校准已实际调用一次。命令回复 true，
+随后 RPY 变化超出监测程序 0.02 rad 阈值，程序发送 stop 并获得确认。复查控制器
+为 ERROR、精确状态 0，六轴电机速度为 0；未发送路径运动或递丝，不自动重试。
+本次已不受下面历史审批拒绝阻塞；需先核对报警全文和校准正常运动范围。
+
+结果目录 `simulation_output/left_authorized_20260929/` 包含预检、校准录像与日志、
+停止后只读复查和 `review.json`。最近五条报警字符串为
+`[0-7000-C],[0-E030-1],[0-E030-1],[0-E030-1],[0-E030-1]`，含义尚未确认。
+已有完整记录；不要为重新取得记录而再次执行校准命令。
+
+## Offline Left Route Reference (2026-09-29)
+
+提取原仿真视频的连续左分支轨迹，按弧长每 10 mm 生成参考点；无硬件接口。
+必须使用新的输出目录，已有结果不会覆盖。
+
+```bash
+cd /media/zsw/SSD1T/robotic_llm/baseline_vla_pi05/project_2026
+MPLCONFIGDIR=/tmp/project2026-mpl /media/zsw/SSD1T/conda_piper/envs/sam3/bin/python -B tools/prepare_sim_left_route.py \
+  --demo simulation_output/simulation_demo_20260929 --spacing-mm 10 \
+  --out "simulation_output/left_route_reference_$(date +%Y%m%d_%H%M%S)"
+```
+
+已完成输出为 `simulation_output/left_route_prepared_20260929/`：28 段参考、原路径
+275.874479 mm；CSV、报告和中文预览图已检查。仿真世界系尚未配准到当前实机，
+不能把 CSV 当作机器人命令；10 mm 是弧长取样间隔，最后一段小于 10 mm。
+本工具不调用下面的校准、机械臂运动或递丝命令。
+
+## Monitored Precision Recovery Preparation (2026-09-29 17:35)
+
+编码器精确校准可能产生关节运动并持久改变控制器校准状态。自动审批审核已拒绝
+本次实际调用：当前只有继续左分支的授权，缺少该具体操作的明确授权。
+**未执行校准；不要改用间接调用绕过拒绝。** 已准备代码、6 项离线检查和只读录像预览。
+
+默认只读预览命令（不调用校准或运动）：
+
+```bash
+cd /media/zsw/SSD1T/robotic_llm/baseline_vla_pi05/project_2026
+/media/zsw/SSD1T/conda_piper/envs/sam3/bin/python -B tools/restore_elite_precision_http.py \
+  --elite-ip 192.168.5.66 \
+  --out "simulation_output/elite_precision_preview_$(date +%Y%m%d_%H%M%S)"
+```
+
+已完成预览为 `simulation_output/left_continue_20260929_172936/calibration_preview/`，
+包含 `report.json`、`cameras.avi`、`camera_times.jsonl` 和两路首末图。
+用户明确授权一次受监测校准后，方可加 `--execute-calibration`，使用新的输出目录。
+实际调用只发一次校准，不递丝、不归位、不重试；15 s 内持续查询，变化超出 TCP
+5 mm / RPY 0.02 rad / 单关节 3° 或遇到故障则尝试停止。发生失败后先查看报告和现场，
+不把再次启动当作恢复。该采样监测不能替代现场空间与人员检查。
+
+## Read-only EC Identity And Physical-Motion Diagnosis (2026-09-29 17:26)
+
+用户报告机械臂肉眼未移动；此前 10.000398 mm 为控制器 TCP 差，物理动作尚未独立确认。
+IP `.66`、实际 socket peer `.66:8055`、EC66 型号和现场示教器角度已核对一致。
+最新编码器精确状态接口及 M472 均为 0，执行入口现要求精确状态为 1，不会自动校准。
+此问题需先核对处理，不能仅凭伺服/同步正常而继续放大或循环发送动作。
+
+只读诊断入口，不移动、不递丝、不修改设备设置：
+
+```bash
+cd /media/zsw/SSD1T/robotic_llm/baseline_vla_pi05/project_2026
+/media/zsw/SSD1T/conda_piper/envs/sam3/bin/python -B tools/inspect_elite_readonly.py \
+  --elite-ip 192.168.5.66 \
+  --out "simulation_output/elite_readonly_$(date +%Y%m%d_%H%M%S)"
+```
+
+已验证输出 `simulation_output/left_route_diagnosis_20260929_171840/ip_verified/report.json`。
+目前不自动执行下面的运动命令；应先恢复精确状态，再完成可见物理动作验证。
+厂家精确模式说明见 https://www.elibot.com/service/articles/list/193 。
+
+## One Left Hardware Action And Coordination (2026-09-29)
+
+相机直播保持运行，从当前 TCP 做一次左任务动作，不采用旧入口的默认采集起点归位。
+以下执行命令会实际移动；每次使用新目录，重新运行意味着新增一次动作，不是恢复旧动作。
+
+用户新授权的固定 10 mm 模式：模型提供方向，用户指定目标位移范数，目标姿态不变。
+在当前场景确认运动范围后，使用下面入口执行一次机械臂动作，再递丝 forward 一步：
+
+```bash
+cd /media/zsw/SSD1T/robotic_llm/baseline_vla_pi05/project_2026
+/media/zsw/SSD1T/conda_piper/envs/sam3/bin/python -B -u tools/execute_left_coordination_http.py \
+  --fixed-step-mm 10 --execute \
+  --out "simulation_output/real_left_fixed10_$(date +%Y%m%d_%H%M%S)"
+```
+
+去掉 `--execute` 只读取模型和 IK，不发送动作。新参数接受 `(0,10]` mm；
+此模式固定起终点 TCP 距离，采用 `move_joint`，不保证笛卡尔直线路径。
+关节变化检查为最多 5°、速度 1%、位置到位容差 0.02 mm，其余状态和失败停止检查保留。
+旧 gain=40 / cap=3 mm 模式仅在不指定 `--fixed-step-mm` 时使用。
+递丝 forward 的 `value` 不控制长度，每包仍一步，实际距离尚未标定。
+这是人工指定幅度的诊断协同，不是原生模型动作或正式训练标签。
+
+已完成 5 项离线检查和 17:07 的实机只读预览：
+`simulation_output/real_left_10mm_20260929_165933/preview/`。
+10 mm 目标逆解通过，最大关节变化 2.147067°；该预览目标未直接执行。
+执行命令会使用当时的新观测重新推理，预览旧目标不作为可直接重放的命令。
+
+用户确认当前空间无障碍、人员离开后，17:11 已用新观测执行一轮，输出同一父目录
+下 `execution/`：实际控制器回读位移 10.000398 mm、到位误差 0.002445 mm，
+1 条机械臂命令后递丝 forward 1 包并收到 ok，无重试。用户另确认本轮导丝实际前进，
+见 `onsite_feedback.json`；17:12 独立回读仍 STOP、无漂移。`comparison_confirmed.png`
+为三阶段对照图。到位后画面显示有人调整相机且 Top 模糊/遮挡，后续动作应重新检查
+现场和固定相机；不把本轮协同记录表述为已完成左分支导航。
+
+已完成的小步范围：模型原幅度，最多 1 mm、1% 关节速度、固定姿态、递丝保持。
+
+```bash
+cd /media/zsw/SSD1T/robotic_llm/baseline_vla_pi05/project_2026
+/media/zsw/SSD1T/conda_piper/envs/sam3/bin/python -B -u tools/execute_left_model_step_http.py \
+  --execute --out "simulation_output/real_left_step_$(date +%Y%m%d_%H%M%S)"
+```
+
+实际已执行结果为 `simulation_output/real_left_once_20260929_163532/execution/`：
+1 条运动命令，回读平移 0.073434 mm、到位误差 0.001181 mm、递丝 0 包。
+
+用户新指定的一轮协同联调：模型方向 ×40，最多 3 mm、1% 关节速度，
+机械臂到位并取得新图后，递丝 forward 一步。递丝是人工指定诊断动作；
+保存原始模型意图与实际指令，不作为模型自主协同成功或正式训练标签。
+现场确认相机固定、血管入镜且人员离开运动范围并复查后，已于 16:49 执行一轮。
+以下为复现入口，每次启动是新的动作轮次：
+
+```bash
+/media/zsw/SSD1T/conda_piper/envs/sam3/bin/python -B -u tools/execute_left_coordination_http.py \
+  --execute --out "simulation_output/real_left_coordination_$(date +%Y%m%d_%H%M%S)"
+```
+
+两入口去掉 `--execute` 仅作模型/IK 预览。预计约 30–40 秒，失败保留报告。
+若发生动作后错误或 UDP 无回执，先核对 `report.json` 和实际设备状态，不自动重发。
+协同 UDP 目标为 `192.168.5.13:8888`，源 `192.168.5.11:37011`；
+收到字节回执不等于物理推进已确认。首次预检
+`simulation_output/real_left_coordination_20260929_164308/` 当时因现场调整未执行；
+就绪后的实际执行输出为
+`simulation_output/real_left_coordination_ready_20260929_164847/execution/`：
+机械臂实测 0.727881 mm、到位误差 0.003588 mm，随后发送 1 包 forward 并收到 ok。
+用户现场确认“看到导丝实际前进”，单独保存 `onsite_feedback.json`；未量化推进距离，
+未判定左分支导航成功。`comparison_confirmed.png` 为包含现场反馈的三阶段对照图。
+
+## Live Model Prediction Preview (2026-09-29)
+
+保持相机直播服务运行，在宿主机读取两路最新画面和机械臂 TCP，分别展示左右任务
+模型输出、1 mm 限幅结果及逆解。只做预测和查询，没有执行参数或递丝连接：
+
+```bash
+cd /media/zsw/SSD1T/robotic_llm/baseline_vla_pi05/project_2026
+/media/zsw/SSD1T/conda_piper/envs/sam3/bin/python -B -u tools/preview_real10_from_camera_http.py \
+  --out "simulation_output/real_model_preview_$(date +%Y%m%d_%H%M%S)"
+```
+
+本机 GPU 实测约 31 秒（模型加载约 30 秒）。默认使用既有 Real10 配对权重、
+`192.168.5.66` 位姿、`http://192.168.5.11:8765` 双相机 JPEG；不会改动直播占用。
+拒绝覆盖旧目录；失败后保留 `report.json` / `worker.log` 并在新目录重试。
+实际输出 `simulation_output/real_model_preview_20260929_1625/` 包含原图、
+`prediction_preview.png`、`report.json`；两分支预测完成，未发送任何动作。
+当前两候选均为小于 1 mm 的平移和递丝保持。用户要求先展示再确认执行；
+预测文件是观察记录，不能跳过新观测和状态检查直接当作运动命令。
+
+## Live Camera Preview And Feeder Address (2026-09-29)
+
+同一局域网访问 `http://192.168.5.11:8765/`，双相机页面自动刷新。
+最新原图：`http://192.168.5.11:8765/side.jpg`、
+`http://192.168.5.11:8765/top.jpg`；状态：`/status.json`。
+当前服务 PID 为 `126099`，输出 `simulation_output/camera_live_20260929_reconnect/`。
+这只是相机预览，未连接机械臂或向递丝装置发送动作。
+
+相机空闲后，在有 USB 权限的宿主机终端启动（默认使用新的输出目录）：
+
+```bash
+cd /media/zsw/SSD1T/robotic_llm/baseline_vla_pi05/project_2026
+/media/zsw/SSD1T/conda_piper/envs/sam3/bin/python -B -u tools/serve_camera_preview.py \
+  --host 192.168.5.11 --port 8765 \
+  --side-serial 317222071938 --top-serial 317222072584
+```
+
+前台按 Ctrl+C 停止并释放相机。停止已有后台服务前，先检查命令和输出目录身份：
+
+```bash
+ps -p 126099 -o pid,args
+```
+
+确认仍为上述预览服务后执行 `kill -INT 126099`；重启后的 PID 以新目录
+`server.json` 为准。后续真实采集前先停止预览，避免同时打开相机。
+
+递丝地址按用户确认更新为 `192.168.5.13:8888`。JSON 格式：
+`{"command":"move","parameters":{"action":"forward","value":1}}`。
+`forward` / `backward` 每包一步；`turn_left` / `turn_right` 的 `value` 为旋转度数。
+本轮仅验证新 IP 网络可达和本地 JSON 构造，未发送 UDP 动作包。
+
+## Camera Position Preview Only (2026-09-29)
+
+在两路相机空闲／完成交接后，从可访问 USB 的宿主机终端运行：
+
+```bash
+cd /media/zsw/SSD1T/robotic_llm/baseline_vla_pi05/project_2026
+/media/zsw/SSD1T/conda_piper/envs/sam3/bin/python -B tools/capture_camera_preview.py \
+  --side-serial 317222071938 --top-serial 317222072584
+```
+
+只拍照，无模型推理、机械臂连接或递丝调用；60 帧预热约 4 秒。
+默认生成新的 `simulation_output/camera_preview_时间/`：两张全分辨率 PNG、
+`preview.png`、`report.json`。序列号绑定的 Side/Top 仅为配置名称，需根据实际构图
+确认视角。发现相机占用时先由使用者交接，不同时启动另一个采集流。
+不要覆盖旧结果；中断后保留报告，使用新目录重试。此入口已完成宿主机双相机实拍，
+60 帧预热后于 16:01:38 保存新图并释放设备，输出
+`simulation_output/camera_preview_20260929_takeover/`。先前展示的 15:51:48 图来自
+另一只读会话；用户明确授权后已停止该会话完成接管。后续每次刷新仍使用新的输出目录。
+
+## Linux Diagnostic Simulation Demo (2026-09-29)
+
+本机独立演示入口；规则专家驱动，不连接机器人或加载 PI05。机器人全景与导丝特写
+并排输出到 MP4，另有 HTML 播放页、起止帧、`report.json` 和 `states.jsonl`。
+场景是诊断配置，未作实机标定。已有 `.venv` 已安装，直接运行：
+
+```bash
+cd /media/zsw/SSD1T/robotic_llm/baseline_vla_pi05/project_2026
+LIBGL_ALWAYS_SOFTWARE=1 .venv/bin/python -B -u tools/run_simulation_demo.py
+```
+
+默认运行左右分支，各最多 320 步，每 4 步渲染一次；输出目录自动使用当前时间。
+打开终端所示输出目录内的 `index.html` 或 `demo.mp4`。如仅需左分支，增加
+`--tasks left`。如指定 `--out`，必须是新目录；中断后保留该目录，在新目录重新运行，
+此短演示不提供断点续跑。视频按 15 FPS 播放，不代表实机控制频率。
+
+若需重建本机环境，基于已存在的算法 Python 建立项目内虚拟环境：
+
+```bash
+/home/zsw/miniconda3/envs/project2026-pi/bin/python -m venv --system-site-packages .venv
+.venv/bin/python -m pip install --no-cache-dir yourdfpy==0.0.60 'trimesh[easy]==5.1.0'
+```
+
+系统另需 `ffmpeg` 与 `/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc`；本机已具备。
+继承环境实际版本：MuJoCo 3.8.1、Gymnasium 1.3.0、NumPy 2.2.6、OpenCV 4.12.0.88、
+SciPy 1.15.3、Pillow 12.3.0。软件渲染的 8 步短跑连同场景加载耗时约 19 秒。
+完整两分支实际耗时约 139 秒，输出 126 帧、8.4 秒视频；结果目录为
+`simulation_output/simulation_demo_20260929/`。此目录已经完成，复现时使用默认新目录。
 
 ## Conventions
 
