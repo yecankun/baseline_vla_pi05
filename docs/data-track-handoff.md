@@ -21,13 +21,23 @@ here; keep only the shared data/action interface needed by the data track.
 含外置引用合计 **67.765002 GB**，故未上传全部历史采集与权重。
 
 - [研究归档 Release](https://github.com/yecankun/baseline_vla_pi05/releases/tag/left-branch-research-20260930)
-- [下载 ZIP](https://github.com/yecankun/baseline_vla_pi05/releases/download/left-branch-research-20260930/left_branch_run_20260929-20260930.zip)
+- [下载 ZIP 分卷与合并工具](https://github.com/yecankun/baseline_vla_pi05/releases/tag/left-branch-research-20260930)
 - 文件大小 **1,463,700,120 bytes**（1.464 GB），含 19 个阶段目录、2,956 个原文件
   及 4 个索引/说明文件；保留原始路径及字节，不转码或缩小图像。全包 CRC 检查通过。
 - SHA-256：`3c67c10f1631ee41b3677b41f4e35dcd3d9035af89c1db38ae478204b30ca7b5`。
   Release 附带 `SHA256SUMS`、`README.txt`、`manifest.json` 和 `recordings.csv`。
 - 归档代码基准为 `46ef6999f1d9a6b448ca6f357432ded584e19cea`。本地包位于
   `simulation_output/research_archive_20260930/`，原实验目录全部保留。
+
+单文件上传连接中断且传输缓慢，故使用 **22 个最多 64 MiB 的二进制分卷**；合并后
+仍是上述 ZIP，字节、大小与 SHA-256 不变。Release 另附 `parts.json`、
+`PARTS_SHA256SUMS` 和离线合并工具 `assemble_archive.py`，逐卷和整包校验后生成 ZIP。
+可用以下命令下载并合并；GitHub 自动生成的 Source code ZIP 只含代码，不含研究数据。
+
+```bash
+gh release download left-branch-research-20260930 --repo yecankun/baseline_vla_pi05 --dir left_branch_archive_20260930 --pattern 'left_branch_run_20260929-20260930.zip.*' --pattern parts.json --pattern assemble_archive.py
+python left_branch_archive_20260930/assemble_archive.py
+```
 
 范围从 9 月 29 日初始检查、首次有现场确认的 16:49 递丝，经隔夜暂停和 9 月 30 日
 恢复/磁引导，到 12:50:41 最后递丝、12:54 停止核验及 12:55:48 到达确认记录。
